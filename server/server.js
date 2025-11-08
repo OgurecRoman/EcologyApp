@@ -1,11 +1,17 @@
-import express from express;
+import express from 'express';
 
 const app = express();
+app.set('view engine', 'ejs');
 app.set('views', './views');
 
 // Создание сервера
 app.get('/', (req, res) => {
-  res.send('Hello Vercel! This is my Node.js app.');
+  try {
+    res.render('index');
+} catch (error) {
+    res.send('Ошибка!!!');
+    console.log(error);
+}
 });
 
 const PORT = 3000;
