@@ -19,6 +19,10 @@ copy example.env .env # для windows
 ```
 измените данные в файле на нужные.
 
+```
+npm install
+```
+
 #### 3. Запуск проекта
 ```
 node bot.js
