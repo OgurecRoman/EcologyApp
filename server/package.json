@@ -12,7 +12,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@maxhub/max-bot-api": "^0.2.1",
     "@prisma/client": "^6.19.0",
+    "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "prisma": "^6.19.0"
