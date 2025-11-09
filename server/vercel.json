@@ -9,6 +9,11 @@
       }
     }
   ],
+  "scripts": {
+    "postinstall": "npx prisma generate",
+    "migrate-and-build": "npx prisma migrate deploy",
+    "start": "node index.js"
+  },
   "routes": [
     {
       "src": "/.*",

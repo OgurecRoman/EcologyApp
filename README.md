@@ -23,6 +23,10 @@ copy example.env .env # для windows
 npm install
 ```
 
+```
+npx prisma generate
+```
+
 #### 3. Запуск проекта
 ```
 node bot.js
