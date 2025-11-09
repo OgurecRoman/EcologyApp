@@ -38,9 +38,7 @@ export async function patchEvents(id, data) {
 };
 
 export async function deleteEvents(id) {
-    const event = await prisma.event.delete({
+    await prisma.event.delete({
         where: { id: id }
     });
-    
-    return event;
 };
