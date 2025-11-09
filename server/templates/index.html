@@ -1,0 +1,170 @@
+"<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карта событий</title>
+<script src="https://api-maps.yandex.ru/2.1/?apikey=aa41fd1c-f570-4490-9b73-ae3db02fa604&lang=ru_RU" type="text/javascript"></script>
+<style>
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
+#map { width: 100%; height: 500px; margin-bottom: 20px; }
+#search { width: 300px; margin: 10px; padding: 5px; }
+form { margin: 20px auto; width: 400px; text-align: left; }
+form input, form select, form textarea, form button { width: 100%; margin-bottom: 10px; padding: 5px; }
+form button { cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>🗺️ Карта событий</h1>
+
+<input id="search" type="text" placeholder="Введите место" />
+
+<div id="map"></div>
+
+<h2>➕ Добавить событие</h2>
+<form id="eventForm">
+    <label>Название:</label>
+    <input type="text" id="name" required />
+    
+    <label>Описание:</label>
+    <textarea id="description" required></textarea>
+    
+    <label>Тип события:</label>
+    <select id="type" required>
+        <option value="SUBBOTNIK">Субботник</option>
+        <option value="PAPER_COLLECTION">Сбор бумаги</option>
+        <option value="BATTERY_COLLECTION">Сбор батареек</option>
+        <option value="PLASTIC_COLLECTION">Сбор пластика</option>
+        <option value="GLASS_COLLECTION">Сбор стекла</option>
+        <option value="ELECTRONICS_COLLECTION">Сбор электроники</option>
+        <option value="OTHER">Другое</option>
+    </select>
+    
+    <label>Дата и время:</label>
+    <input type="datetime-local" id="date" required />
+    
+    <label>Адрес:</label>
+    <input type="text" id="address" required />
+    
+    <label>Автор:</label>
+    <input type="text" id="author" required />
+    
+    <label>Участники (ID через запятую):</label>
+    <input type="text" id="participants" placeholder="Например: 1,2,3" />
+    
+    <button type="submit">Добавить событие</button>
+</form>
+
+<script>
+ymaps.ready(init);
+
+let myMap;
+let myPlacemark;
+let eventPlacemarks = [];
+
+async function fetchEvents() {
+    try {
+        const response = await fetch('/events');
+        return await response.json();
+    } catch (err) {
+        console.error('Ошибка при загрузке событий', err);
+        return [];
+    }
+}
+
+function init() {
+    myMap = new ymaps.Map('map', {
+        center: [55.751244, 37.618423],
+        zoom: 10
+    });
+
+    const searchInput = document.getElementById('search');
+
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const query = searchInput.value;
+            ymaps.geocode(query, { results: 1 }).then(function(res) {
+                const firstGeoObject = res.geoObjects.get(0);
+                const coords = firstGeoObject.geometry.getCoordinates();
+
+                myMap.setCenter(coords, 14, { duration: 500 });
+
+                if (myPlacemark) {
+                    myMap.geoObjects.remove(myPlacemark);
+                }
+                myPlacemark = new ymaps.Placemark(coords, {
+                    balloonContent: firstGeoObject.getAddressLine()
+                });
+                myMap.geoObjects.add(myPlacemark);
+            });
+        }
+    });
+
+    loadEventMarkers();
+}
+
+async function loadEventMarkers() {
+    const events = await fetchEvents();
+    eventPlacemarks.forEach(p => myMap.geoObjects.remove(p));
+    eventPlacemarks = [];
+
+    events.forEach(event => {
+        if (!event.address) return;
+
+        ymaps.geocode(event.address).then(res => {
+            const geoObject = res.geoObjects.get(0);
+            if (!geoObject) return;
+
+            const coords = geoObject.geometry.getCoordinates();
+            const placemark = new ymaps.Placemark(coords, {
+                balloonContentHeader: event.name,
+                balloonContentBody:
+                    "<strong>Дата:</strong> " + new Date(event.date).toLocaleString('ru-RU') +
+                    "<br><strong>Адрес:</strong> " + event.address +
+                    "<br><strong>Автор:</strong> " + event.author +
+                    "<br><strong>Участники:</strong> " + (event.participants.map(p => p.name).join(', ') || 'Нет')
+            });
+            myMap.geoObjects.add(placemark);
+            eventPlacemarks.push(placemark);
+        });
+    });
+}
+
+// Форма добавления события
+document.getElementById('eventForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const participantIds = document.getElementById('participants').value
+        .split(',')
+        .map(id => parseInt(id.trim()))
+        .filter(id => !isNaN(id));
+
+    const eventData = {
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        type: document.getElementById('type').value,
+        date: document.getElementById('date').value,
+        address: document.getElementById('address').value,
+        author: document.getElementById('author').value,
+        participantIds: participantIds
+    };
+
+    try {
+        const res = await fetch('/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData)
+        });
+        const newEvent = await res.json();
+        alert('Событие добавлено: ' + newEvent.name);
+
+        loadEventMarkers();
+        document.getElementById('eventForm').reset();
+    } catch (err) {
+        console.error(err);
+        alert('Ошибка при добавлении события');
+    }
+});
+</script>
+</body>
+</html>"

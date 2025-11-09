@@ -1,8 +1,13 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import router from './routes/index.js'
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 dotenv.config();
+const __filename = fileURLToPath(import.meta.url); // Абсолютный путь к текущему файлу
+const __dirname = path.dirname(__filename);
 
 async function startServer(){
     try{
@@ -10,37 +15,31 @@ async function startServer(){
         app.use(express.json());
         const PORT = process.env.PORT || 3000;
 
+        app.use('/', router);
+
         app.get('/', (req, res) => {
             try {
-                const htmlContent = `
-        <!DOCTYPE html>
-        <html lang="ru">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Дарова</title>
-            <style>
-                body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f4; }
-                h1 { color: #333; }
-            </style>
-        </head>
-        <body>
-            <h1>👋 Привет от простого сервера!</h1>
-            <p>Текущее время на сервере: ${new Date().toLocaleTimeString('ru-RU')}</p>
-        </body>
-        </html>`;
-                res.send(htmlContent);
+                const htmlFilePath = path.join(__dirname, 'templates', 'index.html');
+                console.log(htmlFilePath);
+                fs.readFile(htmlFilePath, 'utf8', (err, data) => {
+                if (err) {
+                    console.error('Ошибка при чтении файла:', err);
+                    // Если файл не найден, отправляем ошибку 500
+                    return res.status(500).send('Ошибка сервера при загрузке HTML');
+                }
+
+                res.send(data);
+                });
             } catch (error) {
                 res.send('Ошибка!!!');
                 console.log(error);
             }
         });
 
-        app.use('/', router);
-
         app.listen(PORT, () => {
             console.log(`🚀 Сервер запущен на порту ${PORT}`);
             console.log(`➡️ Откройте http://localhost:${PORT} в браузере`);
+
         });
     }catch (error) {
         console.error('Failed to initialize server:', error);
