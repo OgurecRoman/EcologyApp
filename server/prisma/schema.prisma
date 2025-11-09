@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  type        EventType
+  date        DateTime
+  address     String
+  author      String   // Можно заменить на authorId: Int и связать с User
+  participants User[]   // Many-to-many: событие может иметь много участников
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique  // Имя пользователя
+  events    Event[]  // События, в которых участвует
+  createdAt DateTime @default(now())
+}
+
+enum EventType {
+  SUBBOTNIK
+  PAPER_COLLECTION
+  BATTERY_COLLECTION
+  PLASTIC_COLLECTION
+  GLASS_COLLECTION
+  ELECTRONICS_COLLECTION
+  OTHER
+}

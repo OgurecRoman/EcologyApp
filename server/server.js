@@ -1,25 +1,24 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
 
+const prisma = new PrismaClient();
 const app = express();
-app.use(express.json());  // Для парсинга JSON в req.body
-
-// Заглушка: in-memory хранилище событий (массив вместо БД)
-let events = [];  // Здесь будут храниться события
-let nextId = 1;   // Автоинкремент для ID
+app.use(express.json());
 
 // GET /events - Получить все события (с фильтрацией по типу)
-app.get('/events', (req, res) => {
+app.get('/events', async (req, res) => {
     try {
-        const { type } = req.query;  // ?type=SUBBOTNIK для фильтра
-        let filteredEvents = events;
-        if (type) {
-            filteredEvents = events.filter(event => event.type === type);
-        }
-        filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));  // Сортировка по дате
-        res.json(filteredEvents);
+        const { type } = req.query;
+        const filters = type ? { type } : {};
+        const events = await prisma.event.findMany({
+            where: filters,
+            orderBy: { date: 'asc' },
+            include: { participants: true }  // Включаем участников
+        });
+        res.json(events);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Ошибка при получении событий' });
@@ -27,25 +26,25 @@ app.get('/events', (req, res) => {
 });
 
 // POST /events - Создать новое событие
-app.post('/events', (req, res) => {
+app.post('/events', async (req, res) => {
     try {
-        const { name, author, date, address, description, type } = req.body;
-        if (!name || !author || !date || !address || !description || !type) {
+        const { name, description, type, date, address, author, participantIds } = req.body;
+        if (!name || !description || !type || !date || !address || !author) {
             return res.status(400).json({ error: 'Все поля обязательны' });
         }
-        const newEvent = {
-            id: nextId++,
-            name,
-            author,
-            date: new Date(date),  // Преобразование в Date
-            address,
-            description,
-            type,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-        events.push(newEvent);
-        res.status(201).json(newEvent);
+        const event = await prisma.event.create({
+            data: {
+                name,
+                description,
+                type,
+                date: new Date(date),
+                address,
+                author,
+                participants: participantIds ? { connect: participantIds.map(id => ({ id })) } : undefined  // Связываем участников по ID
+            },
+            include: { participants: true }
+        });
+        res.status(201).json(event);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Ошибка при создании события' });
@@ -53,23 +52,21 @@ app.post('/events', (req, res) => {
 });
 
 // PATCH /events/:id - Обновить событие
-app.patch('/events/:id', (req, res) => {
+app.patch('/events/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const eventId = parseInt(id);
-        const eventIndex = events.findIndex(event => event.id === eventId);
-        if (eventIndex === -1) {
-            return res.status(404).json({ error: 'Событие не найдено' });
-        }
         const data = req.body;
         if (data.date) data.date = new Date(data.date);
-        const updatedEvent = {
-            ...events[eventIndex],
-            ...data,
-            updatedAt: new Date()
-        };
-        events[eventIndex] = updatedEvent;
-        res.json(updatedEvent);
+        if (data.participantIds) {
+            data.participants = { set: data.participantIds.map(id => ({ id })) };  // Обновляем участников
+            delete data.participantIds;
+        }
+        const event = await prisma.event.update({
+            where: { id: parseInt(id) },
+            data,
+            include: { participants: true }
+        });
+        res.json(event);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Ошибка при обновлении события' });
@@ -77,23 +74,19 @@ app.patch('/events/:id', (req, res) => {
 });
 
 // DELETE /events/:id - Удалить событие
-app.delete('/events/:id', (req, res) => {
+app.delete('/events/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const eventId = parseInt(id);
-        const eventIndex = events.findIndex(event => event.id === eventId);
-        if (eventIndex === -1) {
-            return res.status(404).json({ error: 'Событие не найдено' });
-        }
-        events.splice(eventIndex, 1);
-        res.status(204).send();  // No Content
+        await prisma.event.delete({
+            where: { id: parseInt(id) }
+        });
+        res.status(204).send();
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Ошибка при удалении события' });
     }
 });
 
-// Главная страница (текущий код, но с динамическим временем)
 app.get('/', (req, res) => {
     try {
         const htmlContent = `
