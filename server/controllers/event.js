@@ -2,8 +2,8 @@ import * as eventsService from '../services/event.js';
 
 export async function getEvents(req, res) {
     try {
-        const { type } = req.query;
-        const filters = type ? { type } : {};
+        const types = req.body.types;
+        const filters = types ? types : [];
         const events = await eventsService.getEvents(filters);
         res.json(events);
     } catch (error) {
@@ -11,6 +11,16 @@ export async function getEvents(req, res) {
         res.status(500).json({ error: 'Ошибка при получении событий' });
     }
 };
+
+// export async function getMyEvents(req, res) {
+//     try {
+//         const events = await eventsService.getMyEvents(nick);
+//         res.json(events);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Ошибка при получении событий' });
+//     }
+// };
 
 export async function postEvents(req, res) {
     try {

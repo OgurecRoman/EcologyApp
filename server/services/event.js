@@ -1,12 +1,19 @@
 import prisma from "../lib/prisma.js";
 
-export async function getEvents(filters = {}) {
+export async function getEvents(filters = []) {
+    const whereCondition = {};
+    
+    if (filters && filters.length > 0) {
+        whereCondition.type = {
+            in: filters
+        };
+    }
+
     const events = await prisma.event.findMany({
-        where: filters,
+        where: whereCondition,
         orderBy: { date: 'asc' },
         include: { participants: true }
     });
-    console.log(events[1].participants);
 
     return events;
 };
