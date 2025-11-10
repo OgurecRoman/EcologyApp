@@ -6,6 +6,7 @@ export async function getEvents(filters = {}) {
         orderBy: { date: 'asc' },
         include: { participants: true }
     });
+    console.log(events[1].participants);
 
     return events;
 };
@@ -23,6 +24,8 @@ export async function postEvents(name, description, type, date, address, author,
         },
         include: { participants: true }
     });
+
+    console.log(event.participants);
 
     return event;
 };

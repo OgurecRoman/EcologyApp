@@ -1,4 +1,3 @@
-import prisma from '../lib/prisma.js';
 import * as eventsService from '../services/event.js';
 
 export async function getEvents(req, res) {

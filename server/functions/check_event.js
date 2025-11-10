@@ -1,8 +1,9 @@
 import prisma from "../lib/prisma";
 
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const ONE_DAY_MS = 24 * 60 * 60 * 1000; 
 
 export default async (req, res) => {
+  console.log("Начиваем проверку событий......");
   const now = new Date();
   
   const futureEvents = new Date(now.getTime() + ONE_DAY_MS);
