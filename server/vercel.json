@@ -11,8 +11,8 @@
   ],
   "crons": [
     {
-      "path": "/functions/check_event.js", 
-      "schedule": "40 10 * * *" 
+      "path": "/functions/check_event", 
+      "schedule": "00 11 * * *" 
     }
   ],
   "routes": [
