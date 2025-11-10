@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import router from './routes/index.js';
-import checkEvent from './api/check_event.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
