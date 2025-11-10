@@ -15,8 +15,7 @@ export default async function checkEvent(req, res) {
           lte: futureEvents
         },
         isNotified: false,
-      }, 
-      select: { id: true },
+      },
       include: { participants: true }
     });
 
@@ -26,14 +25,14 @@ export default async function checkEvent(req, res) {
         }
     }
 
-    await prisma.event.updateMany({
-        where: {
-          id: { in: eventsToNotify }
-        },
-        data: {
-          isNotified: true
-        }
-    });
+    // await prisma.event.updateMany({
+    //     where: {
+    //       id: { in: eventsToNotify }
+    //     },
+    //     data: {
+    //       isNotified: true
+    //     }
+    // });
 
     res.status(200).send('Cron Job выполнен успешно.');
 
