@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 dotenv.config();
-const __filename = fileURLToPath(import.meta.url); // Абсолютный путь к текущему файлу
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function startServer(){
@@ -15,6 +15,7 @@ async function startServer(){
         const app = express();
         app.use(express.json());
         const PORT = process.env.PORT || 3000;
+
         userService.postUser();
 
         app.use('/', router);

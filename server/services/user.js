@@ -11,5 +11,6 @@ export async function postUser() {
             username: "Настя",
         },
     });
+    console.log("Добавили юзеров");
 
 };
