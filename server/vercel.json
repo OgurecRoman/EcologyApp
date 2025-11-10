@@ -12,7 +12,7 @@
   "crons": [
     {
       "path": "/functions/check_event.js", 
-      "schedule": "0 1 * * *" 
+      "schedule": "0 10 * * *" 
     }
   ],
   "routes": [
