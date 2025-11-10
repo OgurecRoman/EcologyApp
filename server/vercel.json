@@ -5,14 +5,14 @@
       "src": "server.js", 
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["prisma/migrations/**"] 
+        "includeFiles": ["prisma/migrations/**", "functions/**"] 
       }
     }
   ],
   "crons": [
     {
       "path": "/functions/check_event", 
-      "schedule": "00 11 * * *" 
+      "schedule": "55 12 * * *" 
     }
   ],
   "routes": [
