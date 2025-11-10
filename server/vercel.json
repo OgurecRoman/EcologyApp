@@ -12,7 +12,7 @@
   "crons": [
     {
       "path": "/api/cron-job", 
-      "schedule": "30 13 * * *" 
+      "schedule": "45 13 * * *" 
     }
   ],
   "routes": [
