@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import router from './routes/index.js';
-import * as userService from './services/user.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -15,8 +14,6 @@ async function startServer(){
         const app = express();
         app.use(express.json());
         const PORT = process.env.PORT || 3000;
-
-        userService.postUser();
 
         app.use('/', router);
 
