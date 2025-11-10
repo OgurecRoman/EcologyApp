@@ -11,8 +11,8 @@
   ],
   "crons": [
     {
-      "path": "/functions/check_event", 
-      "schedule": "05 13 * * *" 
+      "path": "/api/cron-job", 
+      "schedule": "10 13 * * *" 
     }
   ],
   "routes": [
