@@ -15,7 +15,8 @@ model Event {
   date        DateTime
   address     String
   author      String   // Можно заменить на authorId: Int и связать с User
-  participants User[]   // Many-to-many: событие может иметь много участников
+  participants User[]
+  isNotificate  Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

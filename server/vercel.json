@@ -9,6 +9,12 @@
       }
     }
   ],
+  "crons": [
+    {
+      "path": "/functions/check_events", 
+      "schedule": "0 * * * *" 
+    }
+  ],
   "routes": [
     {
       "src": "/.*",

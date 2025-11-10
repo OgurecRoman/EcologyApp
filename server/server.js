@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import router from './routes/index.js'
+import router from './routes/index.js';
+import * as userService from './services/user.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -14,6 +15,7 @@ async function startServer(){
         const app = express();
         app.use(express.json());
         const PORT = process.env.PORT || 3000;
+        userService.postUser();
 
         app.use('/', router);
 
@@ -24,7 +26,6 @@ async function startServer(){
                 fs.readFile(htmlFilePath, 'utf8', (err, data) => {
                 if (err) {
                     console.error('Ошибка при чтении файла:', err);
-                    // Если файл не найден, отправляем ошибку 500
                     return res.status(500).send('Ошибка сервера при загрузке HTML');
                 }
 

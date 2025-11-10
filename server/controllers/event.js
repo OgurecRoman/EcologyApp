@@ -13,7 +13,6 @@ export async function getEvents(req, res) {
     }
 };
 
-// POST /events - Создать новое событие
 export async function postEvents(req, res) {
     try {
         const { name, description, type, date, address, author, participantIds } = req.body;
@@ -29,7 +28,6 @@ export async function postEvents(req, res) {
     }
 };
 
-// PATCH /events/:id - Обновить событие
 export async function patchEvents(req, res) {
     try {
         const data = req.body;
