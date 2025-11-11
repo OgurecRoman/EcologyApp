@@ -66,7 +66,7 @@ function initWebApp() {
     if (element_in_func) {
         element_in_func.textContent = `Я В ФУНКЦИИ!`;
     }
-    if (window.WebAppData) {
+    if (WebAppData) {
         const aboba = document.getElementById('aboba');
         if (aboba) {
             aboba.textContent = `я прошел условие!!!`;
@@ -75,7 +75,7 @@ function initWebApp() {
         try{
             const greeting = document.getElementById('greeting-header');
             if (greeting) {
-                greeting.textContent = `Добро пожаловать, ${window.WebAppData.user.username}!`;
+                greeting.textContent = `Добро пожаловать, ${WebAppData.user.username}!`;
             }
 
         } catch (initError) {
