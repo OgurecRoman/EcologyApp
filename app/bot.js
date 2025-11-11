@@ -7,18 +7,14 @@ const token = process.env.BOT_TOKEN;
 const bot = new Bot(token);
 
 const keyboard = Keyboard.inlineKeyboard([
-  // Первая строка с тремя кнопками
-  [
-    Keyboard.button.callback('positive', 'color:positive', { intent: 'positive' }),
-   ],
   [
     Keyboard.button.link('❤️', 'https://max.ru/t211_hakaton_bot?startapp')
   ]
 ]);
 
-
 bot.command('start', (ctx) => {
   try{
+
     ctx.reply('Добро пожаловать!', {attachments: [keyboard]})
   }
   catch (error) {
@@ -27,5 +23,4 @@ bot.command('start', (ctx) => {
   }
 });
 
-console.log("Все готово и запущено");
 bot.start();
