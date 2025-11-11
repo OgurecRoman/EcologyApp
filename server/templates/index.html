@@ -66,28 +66,18 @@ function initWebApp() {
     if (element_in_func) {
         element_in_func.textContent = `Я В ФУНКЦИИ!`;
     }
-    if (window.WebApp) {
+    if (window.WebAppData) {
         const aboba = document.getElementById('aboba');
         if (aboba) {
             aboba.textContent = `я прошел условие!!!`;
         }
 
         try{
-            window.WebApp.getUserInfo()
-                .then(userInfo => {
-                    console.log('Данные пользователя успешно получены:', userInfo);
-                    const greeting = document.getElementById('greeting-header');
-                    if (greeting) {
-                        greeting.textContent = `Добро пожаловать, ${userInfo.first_name}!`;
-                    }
+            const greeting = document.getElementById('greeting-header');
+            if (greeting) {
+                greeting.textContent = `Добро пожаловать, ${window.WebAppData.user.username}!`;
+            }
 
-                    // userInfo содержит такие поля, как:
-                    // user_id, first_name, last_name, username и т.д.
-                })
-                .catch(error => {
-                    console.error('Ошибка при получении данных пользователя:', error);
-                    // Можно показать сообщение об ошибке пользователю
-                });
         } catch (initError) {
              // На случай, если window.WebApp.init() вызывает ошибку
             document.getElementById('user-name').textContent = `Ошипка init: ${initError.message}`;
