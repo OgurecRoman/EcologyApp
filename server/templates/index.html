@@ -18,7 +18,8 @@ form button { cursor: pointer; }
 <body>
 <h1>🗺️ Карта событий </h1>
 <h1 id="user-name">функция</h1>
-<h1 id="greeting-header">Абоба</h1>
+<h3 id="aboba">Я не прошел условие</h3>
+<h4 id="greeting-header">Абоба</h4>
 
 <input id="search" type="text" placeholder="Введите место" />
 
@@ -59,169 +60,159 @@ form button { cursor: pointer; }
 </form>
 
 <script>
-function getUsername() {
-    return Window.WebApp.initData; 
-}
+    ymaps.ready(init);
 
-document.addEventListener('DOMContentLoaded', () => {
-    const name = getUsername(); // Получаем имя
-    const headerElement = document.getElementById('greeting-header'); // Находим элемент
-    
-    // Проверяем, что элемент найден, и обновляем его содержимое
-    if (headerElement) {
-        headerElement.innerHTML = name;
-    }
-});
+    let myMap;
+    let myPlacemark;
+    let eventPlacemarks = [];
 
-function initWebApp() {
-    const userNameElement = document.getElementById('user-name');
-    if (userNameElement) {
-        userNameElement.textContent = `АААААААААААААААААА Я В ФУНКЦИИ'}!`;
-    }
-    if (window.WebApp) {
-        // Инициализируем приложение. 
-        // Это необходимо сделать перед использованием большинства методов.
-        window.WebApp.init(); 
-        
-        // Получаем информацию о пользователе
-        window.WebApp.getUserInfo()
-            .then(userInfo => {
-                console.log('Данные пользователя успешно получены:', userInfo);
-                
-                // Пример использования: вывести имя пользователя на странице
-                const userNameElement = document.getElementById('greeting-header');
-                if (userNameElement) {
-                    userNameElement.textContent = `Добро пожаловать, ${userInfo.first_name}!`;
-                }
-
-                // userInfo содержит такие поля, как:
-                // user_id, first_name, last_name, username и т.д.
-            })
-            .catch(error => {
-                console.error('Ошибка при получении данных пользователя:', error);
-                // Можно показать сообщение об ошибке пользователю
-            });
-            
-    } else {
-        console.error('Window.WebApp не найден. Убедитесь, что приложение запущено в Max Messenger.');
-    }
-}
-
-// Запускаем функцию после загрузки документа
-document.addEventListener('DOMContentLoaded', initWebApp);
-
-ymaps.ready(init);
-
-let myMap;
-let myPlacemark;
-let eventPlacemarks = [];
-
-async function fetchEvents() {
-    try {
-        const response = await fetch('/events');
-        return await response.json();
-    } catch (err) {
-        console.error('Ошибка при загрузке событий', err);
-        return [];
-    }
-}
-
-function init() {
-    myMap = new ymaps.Map('map', {
-        center: [55.751244, 37.618423],
-        zoom: 10
-    });
-
-    const searchInput = document.getElementById('search');
-
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const query = searchInput.value;
-            ymaps.geocode(query, { results: 1 }).then(function(res) {
-                const firstGeoObject = res.geoObjects.get(0);
-                const coords = firstGeoObject.geometry.getCoordinates();
-
-                myMap.setCenter(coords, 14, { duration: 500 });
-
-                if (myPlacemark) {
-                    myMap.geoObjects.remove(myPlacemark);
-                }
-                myPlacemark = new ymaps.Placemark(coords, {
-                    balloonContent: firstGeoObject.getAddressLine()
-                });
-                myMap.geoObjects.add(myPlacemark);
-            });
+    async function fetchEvents() {
+        try {
+            const response = await fetch('/events');
+            return await response.json();
+        } catch (err) {
+            console.error('Ошибка при загрузке событий', err);
+            return [];
         }
-    });
+    }
 
-    loadEventMarkers();
-}
-
-async function loadEventMarkers() {
-    const events = await fetchEvents();
-    eventPlacemarks.forEach(p => myMap.geoObjects.remove(p));
-    eventPlacemarks = [];
-
-    events.forEach(event => {
-        if (!event.address) return;
-
-        ymaps.geocode(event.address).then(res => {
-            const geoObject = res.geoObjects.get(0);
-            if (!geoObject) return;
-
-            const coords = geoObject.geometry.getCoordinates();
-            const placemark = new ymaps.Placemark(coords, {
-                balloonContentHeader: event.name,
-                balloonContentBody:
-                    "<strong>Дата:</strong> " + new Date(event.date).toLocaleString('ru-RU') +
-                    "<br><strong>Адрес:</strong> " + event.address +
-                    "<br><strong>Автор:</strong> " + event.author +
-                    "<br><strong>Участники:</strong> " + (event.participants.map(p => p.name).join(', ') || 'Нет')
-            });
-            myMap.geoObjects.add(placemark);
-            eventPlacemarks.push(placemark);
+    function init() {
+        myMap = new ymaps.Map('map', {
+            center: [55.751244, 37.618423],
+            zoom: 10
         });
-    });
-}
 
-// Форма добавления события
-document.getElementById('eventForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+        const searchInput = document.getElementById('search');
 
-    const participantIds = document.getElementById('participants').value
-        .split(',')
-        .map(id => parseInt(id.trim()))
-        .filter(id => !isNaN(id));
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = searchInput.value;
+                ymaps.geocode(query, { results: 1 }).then(function(res) {
+                    const firstGeoObject = res.geoObjects.get(0);
+                    const coords = firstGeoObject.geometry.getCoordinates();
 
-    const eventData = {
-        name: document.getElementById('name').value,
-        description: document.getElementById('description').value,
-        type: document.getElementById('type').value,
-        date: document.getElementById('date').value,
-        address: document.getElementById('address').value,
-        author: document.getElementById('author').value,
-        participantIds: participantIds
-    };
+                    myMap.setCenter(coords, 14, { duration: 500 });
 
-    try {
-        const res = await fetch('/events', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(eventData)
+                    if (myPlacemark) {
+                        myMap.geoObjects.remove(myPlacemark);
+                    }
+                    myPlacemark = new ymaps.Placemark(coords, {
+                        balloonContent: firstGeoObject.getAddressLine()
+                    });
+                    myMap.geoObjects.add(myPlacemark);
+                });
+            }
         });
-        const newEvent = await res.json();
-        alert('Событие добавлено: ' + newEvent.name);
 
         loadEventMarkers();
-        document.getElementById('eventForm').reset();
-    } catch (err) {
-        console.error(err);
-        alert('Ошибка при добавлении события');
     }
-});
-console.log("window!!!");
-console.log(WebAppData.user.username);
-console.log(window.WebApp);
+
+    async function loadEventMarkers() {
+        const events = await fetchEvents();
+        eventPlacemarks.forEach(p => myMap.geoObjects.remove(p));
+        eventPlacemarks = [];
+
+        events.forEach(event => {
+            if (!event.address) return;
+
+            ymaps.geocode(event.address).then(res => {
+                const geoObject = res.geoObjects.get(0);
+                if (!geoObject) return;
+
+                const coords = geoObject.geometry.getCoordinates();
+                const placemark = new ymaps.Placemark(coords, {
+                    balloonContentHeader: event.name,
+                    balloonContentBody:
+                        "<strong>Дата:</strong> " + new Date(event.date).toLocaleString('ru-RU') +
+                        "<br><strong>Адрес:</strong> " + event.address +
+                        "<br><strong>Автор:</strong> " + event.author +
+                        "<br><strong>Участники:</strong> " + (event.participants.map(p => p.name).join(', ') || 'Нет')
+                });
+                myMap.geoObjects.add(placemark);
+                eventPlacemarks.push(placemark);
+            });
+        });
+    }
+
+    // Форма добавления события
+    document.getElementById('eventForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const participantIds = document.getElementById('participants').value
+            .split(',')
+            .map(id => parseInt(id.trim()))
+            .filter(id => !isNaN(id));
+
+        const eventData = {
+            name: document.getElementById('name').value,
+            description: document.getElementById('description').value,
+            type: document.getElementById('type').value,
+            date: document.getElementById('date').value,
+            address: document.getElementById('address').value,
+            author: document.getElementById('author').value,
+            participantIds: participantIds
+        };
+
+        try {
+            const res = await fetch('/events', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(eventData)
+            });
+            const newEvent = await res.json();
+            alert('Событие добавлено: ' + newEvent.name);
+
+            loadEventMarkers();
+            document.getElementById('eventForm').reset();
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка при добавлении события');
+        }
+    });
+</script>
+
+<script src="https://static.max.ru/js/max-bridge.js"></script>
+<script src="https://st.max.ru/js/max-web-app.js"></script>
+
+<script>
+    function initWebApp() {
+        const userNameElement = document.getElementById('user-name');
+        if (userNameElement) {
+            userNameElement.textContent = `АААААААААААААААААА Я В ФУНКЦИИ'}!`;
+        }
+        if (window.WebApp) {
+            const userNameElement = document.getElementById('aboba');
+            if (userNameElement) {
+                userNameElement.textContent = `я прошел условие!!!`;
+            }
+            window.WebApp.init(); 
+            
+            // Получаем информацию о пользователе
+            window.WebApp.getUserInfo()
+                .then(userInfo => {
+                    console.log('Данные пользователя успешно получены:', userInfo);
+                    
+                    // Пример использования: вывести имя пользователя на странице
+                    const userNameElement = document.getElementById('greeting-header');
+                    if (userNameElement) {
+                        userNameElement.textContent = `Добро пожаловать, ${userInfo.first_name}!`;
+                    }
+
+                    // userInfo содержит такие поля, как:
+                    // user_id, first_name, last_name, username и т.д.
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении данных пользователя:', error);
+                    // Можно показать сообщение об ошибке пользователю
+                });
+                
+        } else {
+            console.error('Window.WebApp не найден. Убедитесь, что приложение запущено в Max Messenger.');
+        }
+    }
+
+    initWebApp();
+
 </script>
 </body>
 </html>
