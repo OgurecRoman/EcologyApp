@@ -16,7 +16,7 @@ form button { cursor: pointer; }
 </style>
 </head>
 <body>
-<h1>🗺️ Карта событий</h1>
+<h1 id="greeting-header">🗺️ Карта событий для </h1>
 
 <input id="search" type="text" placeholder="Введите место" />
 
@@ -57,6 +57,20 @@ form button { cursor: pointer; }
 </form>
 
 <script>
+function getUsername() {
+    return WebAppData.user.username; 
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const name = getUsername(); // Получаем имя
+    const headerElement = document.getElementById('greeting-header'); // Находим элемент
+    
+    // Проверяем, что элемент найден, и обновляем его содержимое
+    if (headerElement) {
+        headerElement.innerHTML = `Привет, ${name}!`;
+    }
+});
+
 ymaps.ready(init);
 
 let myMap;
