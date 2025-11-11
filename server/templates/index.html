@@ -9,7 +9,6 @@
 <style>
 body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
 #map { width: 100%; height: 500px; margin-bottom: 20px; }
-#search { width: 300px; margin: 10px; padding: 5px; }
 form { margin: 20px auto; width: 400px; text-align: left; }
 form input, form select, form textarea, form button { width: 100%; margin-bottom: 10px; padding: 5px; }
 form button { cursor: pointer; }
@@ -17,12 +16,7 @@ form button { cursor: pointer; }
 </head>
 <body>
 <h1>🗺️ Карта событий </h1>
-<h1 id="debug-in-func">функция</h1>
-<h3 id="aboba">Я не прошел условие</h3>
-<h3 id="user-name">тут должна быть инициализация но ее нет</h3>
-<h4 id="greeting-header">Абоба</h4>
-
-<input id="search" type="text" placeholder="Введите место" />
+<h3 id="user">user</h3>
 
 <div id="map"></div>
 
@@ -61,34 +55,31 @@ form button { cursor: pointer; }
 </form>
 
 <script>
-function initWebApp() {
-    const element_in_func = document.getElementById('debug-in-func');
-    if (element_in_func) {
-        element_in_func.textContent = `Я В ФУНКЦИИ!`;
+async function fetchUser(id, name) {
+    try {
+        const queryParams = new URLSearchParams({ id: id, name: name });
+        const url = `/user?${queryParams.toString()}`;
+        const response = await fetch(url);
+        
+        return response.json();
+    } catch (err) {
+        console.error('Ошибка при получении пользователя', err);
+        return [];
     }
-    if (window.WebApp) {
-        const aboba = document.getElementById('aboba');
-        if (aboba) {
-            aboba.textContent = `я прошел условие!!!`;
-        }
+}
 
+async function initWebApp() {
+    if (window.WebApp) {
         try{
             const data = window.WebApp.initDataUnsafe;
-            document.getElementById('user-name').textContent = `получили data: ${data.user}`;
-
-            const greeting = document.getElementById('greeting-header');
-            if (greeting) {
-                greeting.textContent = `Добро пожаловать, ${data.user.id}, ${data.user.first_name}!`;
-            }
+            const user = await fetchUser(data.id, data.user);
+            document.getElementById('user').textContent = `${user.username}`;
 
         } catch (initError) {
-             // На случай, если window.WebApp.init() вызывает ошибку
-            document.getElementById('user-name').textContent = `Ошипка init: ${initError.message}`;
-            return; // Останавливаем дальнейшее выполнение
+            return;
         }
             
     } else {
-        document.getElementById('user-name').textContent = `ошипка`;
         console.error('Window.WebApp не найден. Убедитесь, что приложение запущено в Max Messenger.');
     }
 }
@@ -116,28 +107,6 @@ function init() {
     myMap = new ymaps.Map('map', {
         center: [55.751244, 37.618423],
         zoom: 10
-    });
-
-    const searchInput = document.getElementById('search');
-
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const query = searchInput.value;
-            ymaps.geocode(query, { results: 1 }).then(function(res) {
-                const firstGeoObject = res.geoObjects.get(0);
-                const coords = firstGeoObject.geometry.getCoordinates();
-
-                myMap.setCenter(coords, 14, { duration: 500 });
-
-                if (myPlacemark) {
-                    myMap.geoObjects.remove(myPlacemark);
-                }
-                myPlacemark = new ymaps.Placemark(coords, {
-                    balloonContent: firstGeoObject.getAddressLine()
-                });
-                myMap.geoObjects.add(myPlacemark);
-            });
-        }
     });
 
     loadEventMarkers();
@@ -206,8 +175,6 @@ document.getElementById('eventForm').addEventListener('submit', async function(e
     }
 });
 </script>
-
-<script src="https://static.max.ru/js/max-bridge.js"></script>
 
 </body>
 </html>

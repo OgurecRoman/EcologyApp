@@ -24,8 +24,8 @@ model Event {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique  // Имя пользователя
+  id        Int      @id
+  username  String 
   events    Event[]  // События, в которых участвует
   createdAt DateTime @default(now())
 }
