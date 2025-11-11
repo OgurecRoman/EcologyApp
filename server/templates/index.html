@@ -73,30 +73,26 @@ function initWebApp() {
         }
 
         try{
-            const element_init_status = document.getElementById('user-name');
-            if (element_init_status) {
-                element_init_status.textContent = window.WebAppData.user.username;
-            }
+            window.WebApp.getUserInfo()
+                .then(userInfo => {
+                    console.log('Данные пользователя успешно получены:', userInfo);
+                    const greeting = document.getElementById('greeting-header');
+                    if (greeting) {
+                        greeting.textContent = `Добро пожаловать, ${userInfo.first_name}!`;
+                    }
+
+                    // userInfo содержит такие поля, как:
+                    // user_id, first_name, last_name, username и т.д.
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении данных пользователя:', error);
+                    // Можно показать сообщение об ошибке пользователю
+                });
         } catch (initError) {
              // На случай, если window.WebApp.init() вызывает ошибку
             document.getElementById('user-name').textContent = `Ошипка init: ${initError.message}`;
-            console.error("Ошибка при вызове window.WebApp.init():", initError);
             return; // Останавливаем дальнейшее выполнение
         }
-        // Получаем информацию о пользователе
-        window.WebApp.getUserInfo()
-            .then(userInfo => {
-                console.log('Данные пользователя успешно получены:', userInfo);
-                
-                userNameElement.textContent = `Добро пожаловать, ${userInfo.first_name}!`;
-
-                // userInfo содержит такие поля, как:
-                // user_id, first_name, last_name, username и т.д.
-            })
-            .catch(error => {
-                console.error('Ошибка при получении данных пользователя:', error);
-                // Можно показать сообщение об ошибке пользователю
-            });
             
     } else {
         document.getElementById('user-name').textContent = `ошипка`;
