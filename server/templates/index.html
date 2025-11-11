@@ -65,7 +65,11 @@ let eventPlacemarks = [];
 
 async function fetchEvents() {
     try {
-        const response = await fetch('/events');
+        const response = await fetch('/events', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "types": [] })
+        });
         return await response.json();
     } catch (err) {
         console.error('Ошибка при загрузке событий', err);
