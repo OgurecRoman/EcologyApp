@@ -66,25 +66,20 @@ function initWebApp() {
         userNameElement.textContent = `АААААААААААААААААА Я В ФУНКЦИИ'}!`;
     }
     if (window.WebApp) {
-        const userNameElement = document.getElementById('aboba');
-        if (userNameElement) {
-            userNameElement.textContent = `я прошел условие!!!`;
+        const aboba = document.getElementById('aboba');
+        if (aboba) {
+            aboba.textContent = `я прошел условие!!!`;
         }
         window.WebApp.init(); 
 
-        document.getElementById('user-name').textContent = `инициализировался`;
-        
+        userNameElement.textContent = `инициализировался`;
         
         // Получаем информацию о пользователе
         window.WebApp.getUserInfo()
             .then(userInfo => {
                 console.log('Данные пользователя успешно получены:', userInfo);
                 
-                // Пример использования: вывести имя пользователя на странице
-                const userNameElement = document.getElementById('greeting-header');
-                if (userNameElement) {
-                    userNameElement.textContent = `Добро пожаловать, ${userInfo.first_name}!`;
-                }
+                userNameElement.textContent = `Добро пожаловать, ${userInfo.first_name}!`;
 
                 // userInfo содержит такие поля, как:
                 // user_id, first_name, last_name, username и т.д.
