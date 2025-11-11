@@ -2,8 +2,8 @@ import * as eventsService from '../services/event.js';
 
 export async function getEvents(req, res) {
     try {
-        const types = req.body.types;
-        const filters = types ? types : [];
+        console.log(req.body);
+        const filters = req.body && req.body.types ? req.body.types : [];
         const events = await eventsService.getEvents(filters);
         res.json(events);
     } catch (error) {
