@@ -74,8 +74,8 @@ function initWebApp() {
 
         try{
             const data = window.WebApp.initDataUnsafe;
-            document.getElementById('user-name').textContent = `получили data`;
-            
+            document.getElementById('user-name').textContent = `получили data: ${data.user}`;
+
             const greeting = document.getElementById('greeting-header');
             if (greeting) {
                 greeting.textContent = `Добро пожаловать, ${data.user.username}!`;
