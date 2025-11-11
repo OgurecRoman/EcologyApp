@@ -17,6 +17,7 @@ form button { cursor: pointer; }
 </head>
 <body>
 <h1>🗺️ Карта событий </h1>
+<h1 id="user-name">функция</h1>
 <h1 id="greeting-header">Абоба</h1>
 
 <input id="search" type="text" placeholder="Введите место" />
@@ -73,6 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initWebApp() {
+    const userNameElement = document.getElementById('user-name');
+    if (userNameElement) {
+        userNameElement.textContent = `АААААААААААААААААА Я В ФУНКЦИИ'}!`;
+    }
     if (window.WebApp) {
         // Инициализируем приложение. 
         // Это необходимо сделать перед использованием большинства методов.
