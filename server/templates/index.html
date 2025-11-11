@@ -73,11 +73,9 @@ function initWebApp() {
         }
 
         try{
-            window.WebApp.init(); 
-
             const element_init_status = document.getElementById('user-name');
             if (element_init_status) {
-                element_init_status.textContent = `инициализировался`; // <-- Этот код должен выполниться
+                element_init_status.textContent = window.WebApp.initData;
             }
         } catch (initError) {
              // На случай, если window.WebApp.init() вызывает ошибку
