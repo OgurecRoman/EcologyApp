@@ -17,8 +17,9 @@ form button { cursor: pointer; }
 </head>
 <body>
 <h1>🗺️ Карта событий </h1>
-<h1 id="user-name">функция</h1>
+<h1 id="debug-in-func">функция</h1>
 <h3 id="aboba">Я не прошел условие</h3>
+<h3 id="user-name">тут должна быть инициализация но ее нет</h3>
 <h4 id="greeting-header">Абоба</h4>
 
 <input id="search" type="text" placeholder="Введите место" />
@@ -61,19 +62,29 @@ form button { cursor: pointer; }
 
 <script>
 function initWebApp() {
-    const userNameElement = document.getElementById('user-name');
-    if (userNameElement) {
-        userNameElement.textContent = `АААААААААААААААААА Я В ФУНКЦИИ'}!`;
+    const element_in_func = document.getElementById('debug-in-func');
+    if (element_in_func) {
+        element_in_func.textContent = `Я В ФУНКЦИИ!`;
     }
     if (window.WebApp) {
         const aboba = document.getElementById('aboba');
         if (aboba) {
             aboba.textContent = `я прошел условие!!!`;
         }
-        window.WebApp.init(); 
 
-        userNameElement.textContent = `инициализировался`;
-        
+        try{
+            window.WebApp.init(); 
+
+            const element_init_status = document.getElementById('user-name');
+            if (element_init_status) {
+                element_init_status.textContent = `инициализировался`; // <-- Этот код должен выполниться
+            }
+        } catch (initError) {
+             // На случай, если window.WebApp.init() вызывает ошибку
+            document.getElementById('user-name').textContent = `Ошипка init: ${initError.message}`;
+            console.error("Ошибка при вызове window.WebApp.init():", initError);
+            return; // Останавливаем дальнейшее выполнение
+        }
         // Получаем информацию о пользователе
         window.WebApp.getUserInfo()
             .then(userInfo => {
