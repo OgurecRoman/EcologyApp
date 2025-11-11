@@ -16,7 +16,8 @@ form button { cursor: pointer; }
 </style>
 </head>
 <body>
-<h1 id="greeting-header">🗺️ Карта событий для </h1>
+<h1>🗺️ Карта событий </h1>
+<h1 id="greeting-header"> </h1>
 
 <input id="search" type="text" placeholder="Введите место" />
 
@@ -58,7 +59,7 @@ form button { cursor: pointer; }
 
 <script>
 function getUsername() {
-    return window.WebAppData.user.username; 
+    return Window.WebApp.initData; 
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -67,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Проверяем, что элемент найден, и обновляем его содержимое
     if (headerElement) {
-        headerElement.innerHTML = `Привет, ${name}!`;
+        headerElement.innerHTML = name;
     }
 });
 
