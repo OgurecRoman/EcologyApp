@@ -78,7 +78,7 @@ function initWebApp() {
 
             const greeting = document.getElementById('greeting-header');
             if (greeting) {
-                greeting.textContent = `Добро пожаловать, ${data.user.username}!`;
+                greeting.textContent = `Добро пожаловать, ${data.user.id}, ${data.user.first_name}!`;
             }
 
         } catch (initError) {
