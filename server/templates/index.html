@@ -66,16 +66,19 @@ function initWebApp() {
     if (element_in_func) {
         element_in_func.textContent = `Я В ФУНКЦИИ!`;
     }
-    if (WebAppData) {
+    if (window.WebApp) {
         const aboba = document.getElementById('aboba');
         if (aboba) {
             aboba.textContent = `я прошел условие!!!`;
         }
 
         try{
+            const data = window.WebApp.initDataUnsafe;
+            document.getElementById('user-name').textContent = `получили data`;
+            
             const greeting = document.getElementById('greeting-header');
             if (greeting) {
-                greeting.textContent = `Добро пожаловать, ${WebAppData.user.username}!`;
+                greeting.textContent = `Добро пожаловать, ${data.user.username}!`;
             }
 
         } catch (initError) {
