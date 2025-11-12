@@ -17,6 +17,7 @@
     "@maxhub/max-ui": "^0.1.12",
     "@prisma/adapter-pg": "^6.19.0",
     "@prisma/client": "^6.19.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "pg": "^8.16.3",
     "prisma": "^6.19.0"
