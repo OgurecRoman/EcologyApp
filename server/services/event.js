@@ -1,22 +1,23 @@
 import prisma from "../lib/prisma.js";
 
-export async function getEvents(filters = []) {
-    const whereCondition = {};
-    
-    if (filters && filters.length > 0) {
-        whereCondition.type = {
-            in: filters
-        };
+export async function getEvents(filters = {}) {
+    console.log('Фильтры (service):', filters);
+    const where = {};
+
+    if (Array.isArray(filters.types) && filters.types.length > 0) {
+        where.type = { in: filters.types };
     }
 
-    const events = await prisma.event.findMany({
-        where: whereCondition,
+    if (filters.city) {
+        where.address = { contains: filters.city, mode: 'insensitive' };
+    }
+
+    return await prisma.event.findMany({
+        where,
         orderBy: { date: 'asc' },
         include: { participants: true }
     });
-
-    return events;
-};
+}
 
 export async function getMyEvents(userId) {
     let user = await prisma.user.findUnique({
@@ -29,15 +30,19 @@ export async function getMyEvents(userId) {
     return user.events;
 };
 
-export async function postEvents(name, description, type, date, address, author) {
+export async function postEvents(name, description, type, date, address, city, author) {
+    const fullAddress = city ? `${city}, ${address}`.trim() : address;
     const event = await prisma.event.create({
         data: {
             name,
             description,
             type,
             date: new Date(date),
-            address,
-            author
+            address: fullAddress,
+            author,
+            participants: participantIds.length > 0
+                ? { connect: participantIds.map(id => ({ id })) }
+                : undefined
         },
         include: { participants: true }
     });
@@ -67,17 +72,15 @@ export async function joinEvent(userId, eventId) {
 };
 
 export async function patchEvents(id, data) {
-    const event = await prisma.event.update({
-        where: {id: id},
+    return await prisma.event.update({
+        where: { id },
         data,
         include: { participants: true }
     });
-
-    return event;
-};
+}
 
 export async function deleteEvents(id) {
     await prisma.event.delete({
-        where: { id: id }
+        where: { id }
     });
-};
+}
