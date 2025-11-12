@@ -5,15 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/server/controllers/notification.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/routes/notification.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/notification.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/bot.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/bot.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example.env" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/server/controllers/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/event.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/lib/prisma.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/lib/prisma.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +58,8 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Node.js.bot.js.executor": "Run",
+    "Node.js.event.js.executor": "Run",
+    "Node.js.notification-server.js.executor": "Run",
     "Node.js.prisma-setup.js.executor": "Run",
     "Node.js.server.js.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -95,12 +93,20 @@
     <configuration name="bot.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/app/bot.js" working-dir="$PROJECT_DIR$/app">
       <method v="2" />
     </configuration>
+    <configuration name="event.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/server/controllers/event.js" working-dir="$PROJECT_DIR$/server/controllers">
+      <method v="2" />
+    </configuration>
+    <configuration name="notification-server.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/app/notification-server.js" working-dir="$PROJECT_DIR$/app">
+      <method v="2" />
+    </configuration>
     <configuration name="server.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/server/server.js" working-dir="$PROJECT_DIR$/server">
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Node.js.bot.js" />
+        <item itemvalue="Node.js.notification-server.js" />
+        <item itemvalue="Node.js.event.js" />
         <item itemvalue="Node.js.server.js" />
       </list>
     </recent_temporary>
@@ -124,6 +130,7 @@
       <workItem from="1762890502642" duration="1305000" />
       <workItem from="1762891956524" duration="56000" />
       <workItem from="1762892485137" duration="6241000" />
+      <workItem from="1762956632576" duration="9925000" />
     </task>
     <servers />
   </component>

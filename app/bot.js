@@ -1,10 +1,8 @@
 import * as dotenv from 'dotenv';
-import express from 'express';
 import { Bot, Keyboard } from '@maxhub/max-bot-api';
-import { Client } from 'pg';
+import { addSubscriber, removeSubscriber, sendNewEventNotification } from './notification.js';
 
-// Загружаем .env
-dotenv.config({ path: '../.env' });
+dotenv.config();
 
 const token = process.env.BOT_TOKEN;
 if (!token) {
@@ -13,406 +11,392 @@ if (!token) {
 }
 
 console.log('✅ Токен загружен');
-
-// Подключаемся к PostgreSQL
-const client = new Client({
-    connectionString: process.env.DATABASE_URL
-});
-
-// Функция для подключения к базе
-async function connectDB() {
-    try {
-        await client.connect();
-        console.log('✅ Подключение к PostgreSQL установлено');
-    } catch (error) {
-        console.error('❌ Ошибка подключения к PostgreSQL:', error);
-        process.exit(1);
-    }
-}
-
-connectDB();
-
 const bot = new Bot(token);
 
-// Хранилище состояний пользователей
-const userStates = new Map();
+const ECOLOGY_API_URL = 'https://ecology-app.vercel.app/events';
 
-// Типы событий
 const EVENT_TYPES = {
-    SUBBOTNIK: 'Субботник',
-    PAPER_COLLECTION: 'Сбор макулатуры',
-    BATTERY_COLLECTION: 'Сбор батареек',
-    PLASTIC_COLLECTION: 'Сбор пластика',
-    MITTING: 'Захват власти',
-    PLANTING_TREES: 'Высадка деревьев',
-    OTHER: 'Другое'
+    SUBBOTNIK: '🌿 Субботник',
+    PAPER_COLLECTION: '📄 Сбор макулатуры',
+    BATTERY_COLLECTION: '🔋 Сбор батареек',
+    PLASTIC_COLLECTION: '🫙 Сбор пластика',
+    MITTING: '🎯 Захват власти',
+    PLANTING_TREES: '🌳 Высадка деревьев',
+    OTHER: '❓ Другое'
 };
 
-// Типы состояний
-const USER_STATES = {
-    AWAITING_MESSAGE: 'awaiting_message',
-    ASKED_PARTICIPATION: 'asked_participation',
-    ADDING_EVENT: 'adding_event',
-    IDLE: 'idle'
-};
+// Хранилище для отслеживания последних событий
+let lastEvents = [];
+let lastCheckTime = new Date();
 
-// Шаги создания события
-const EVENT_STEPS = {
-    NAME: 'name',
-    DESCRIPTION: 'description',
-    TYPE: 'type',
-    DATE: 'date',
-    ADDRESS: 'address'
-};
-
-// Функция для создания клавиатуры
-function createEventKeyboard(showBack = false) {
-    const buttons = [];
-    if (showBack) {
-        buttons.push([Keyboard.button.callback('◀️ Назад', 'back_button', { intent: 'default' })]);
-    }
-    buttons.push([Keyboard.button.callback('❌ Отменить создание', 'cancel_button', { intent: 'default' })]);
-    return Keyboard.inlineKeyboard(buttons);
-}
-
-// Клавиатура для участия
-const participationKeyboard = Keyboard.inlineKeyboard([
-    [
-        Keyboard.button.callback('не хочу', 'dont_want', { intent: 'default' }),
-        Keyboard.button.link('хочу', 'https://max.ru/t211_hakaton_bot?startapp')
-    ],
-]);
-
-// Функции для работы с базой данных напрямую
-async function getAllEvents() {
+// Функция для получения событий с API
+async function getEventsFromAPI() {
     try {
-        const result = await client.query(`
-            SELECT * FROM "Event" 
-            ORDER BY date ASC
-        `);
-        return result.rows;
+        console.log('📡 Запрос событий с:', ECOLOGY_API_URL);
+
+        const response = await fetch(ECOLOGY_API_URL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const events = await response.json();
+        console.log(`✅ Получено ${events.length} событий`);
+        return events;
     } catch (error) {
-        console.error('Ошибка при получении событий:', error);
+        console.error('❌ Ошибка при получении событий:', error);
         throw error;
     }
 }
 
-async function createEvent(eventData) {
+// Функция для проверки новых событий
+async function checkForNewEvents() {
     try {
-        const result = await client.query(`
-            INSERT INTO "Event" (name, description, type, date, address, author, "createdAt", "updatedAt")
-            VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-            RETURNING *
-        `, [
-            eventData.name,
-            eventData.description,
-            eventData.type,
-            new Date(eventData.date),
-            eventData.address,
-            eventData.author
-        ]);
-        return result.rows[0];
+        console.log('🔍 Проверка новых событий...');
+
+        const currentEvents = await getEventsFromAPI();
+
+        if (lastEvents.length === 0) {
+            // Первая проверка - просто сохраняем события
+            lastEvents = currentEvents;
+            console.log('📝 Первоначальная загрузка событий');
+            return [];
+        }
+
+        // Находим новые события (те, которых не было в предыдущей проверке)
+        const newEvents = currentEvents.filter(currentEvent =>
+            !lastEvents.some(lastEvent =>
+                lastEvent.id === currentEvent.id ||
+                (lastEvent.name === currentEvent.name &&
+                    lastEvent.date === currentEvent.date)
+            )
+        );
+
+        console.log(`🆕 Найдено новых событий: ${newEvents.length}`);
+
+        // Обновляем хранилище
+        lastEvents = currentEvents;
+        lastCheckTime = new Date();
+
+        return newEvents;
     } catch (error) {
-        console.error('Ошибка при создании события:', error);
-        throw error;
+        console.error('❌ Ошибка при проверке новых событий:', error);
+        return [];
     }
 }
 
-// Команда /start
+// Функция для отправки уведомлений о новых событиях
+async function notifyAboutNewEvents() {
+    try {
+        const newEvents = await checkForNewEvents();
+
+        if (newEvents.length === 0) {
+            console.log('ℹ️ Новых событий нет');
+            return;
+        }
+
+        console.log(`📢 Найдено ${newEvents.length} новых событий для уведомления`);
+
+        // Отправляем уведомления для каждого нового события
+        for (const event of newEvents) {
+            console.log(`📨 Отправка уведомления о событии: "${event.name}"`);
+            await sendNewEventNotification(event);
+
+            // Небольшая пауза между отправками
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+    } catch (error) {
+        console.error('❌ Ошибка при отправке уведомлений о новых событиях:', error);
+    }
+}
+
+// Запускаем периодическую проверку новых событий
+function startEventMonitoring() {
+    const CHECK_INTERVAL = 2 * 60 * 1000; // 2 минуты
+
+    console.log(`🕐 Запуск мониторинга событий (интервал: ${CHECK_INTERVAL/1000} секунд)`);
+
+    // Первоначальная загрузка событий
+    getEventsFromAPI().then(events => {
+        lastEvents = events;
+        console.log(`📝 Загружено ${events.length} событий для мониторинга`);
+    });
+
+    // Периодическая проверка
+    setInterval(notifyAboutNewEvents, CHECK_INTERVAL);
+
+    // Также проверяем каждую минуту для более оперативного оповещения
+    setInterval(notifyAboutNewEvents, 60 * 1000);
+}
+
+// Команда для принудительной проверки новых событий (для тестирования)
+bot.command('check_new', async (ctx) => {
+    try {
+        await ctx.reply('🔍 Проверяю новые события...');
+
+        const newEvents = await checkForNewEvents();
+
+        if (newEvents.length === 0) {
+            await ctx.reply('ℹ️ Новых событий не найдено');
+        } else {
+            await ctx.reply(`🎉 Найдено ${newEvents.length} новых событий! Уведомления отправляются...`);
+
+            for (const event of newEvents) {
+                await sendNewEventNotification(event);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+    } catch (error) {
+        console.error('❌ Ошибка при ручной проверке:', error);
+        await ctx.reply('❌ Ошибка при проверке новых событий');
+    }
+});
+
+// Команда для просмотра статуса мониторинга
+bot.command('monitor_status', async (ctx) => {
+    const statusMessage = `📊 **Статус мониторинга событий**\n\n` +
+        `🔍 Последняя проверка: ${lastCheckTime.toLocaleString('ru-RU')}\n` +
+        `📝 Отслеживается событий: ${lastEvents.length}\n` +
+        `👥 Подписчиков: ${getSubscribersCount()}\n\n` +
+        `_Бот проверяет новые события каждые 1-2 минуты_`;
+
+    await ctx.reply(statusMessage);
+});
+
+function getSubscribersCount() {
+    return 0; // Заглушка
+}
+
+bot.command('test_notify', async (ctx) => {
+    try {
+        const testEvent = {
+            name: "Тестовое событие",
+            description: "Это тестовое уведомление от бота",
+            type: "SUBBOTNIK",
+            date: new Date().toISOString(),
+            address: "Тестовый адрес",
+            author: "Бот"
+        };
+
+        const results = await sendNewEventNotification(testEvent);
+        ctx.reply(`✅ Тестовое уведомление отправлено! Успешно: ${results.filter(r => r.status === 'success').length}`);
+    } catch (error) {
+        console.error('❌ Ошибка тестового уведомления:', error);
+        ctx.reply('❌ Ошибка при отправке тестового уведомления');
+    }
+});
+
+// Функция для форматирования даты
+function formatDate(dateString) {
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    } catch (error) {
+        console.error('❌ Ошибка форматирования даты:', dateString);
+        return dateString;
+    }
+}
+
 bot.command('start', (ctx) => {
     const chatId = ctx.update.message?.recipient?.chat_id;
     const userName = ctx.update.message?.from?.first_name || 'Пользователь';
 
-    userStates.set(chatId, { state: USER_STATES.AWAITING_MESSAGE });
+    addSubscriber(chatId, ctx);
 
-    ctx.reply(`Привет, ${userName}! 👋\n\nЯ бот для экологических мероприятий!\n\nДоступные команды:\n/start - начать работу\n/addevent - добавить событие\n/events - посмотреть все события\n/help - помощь\n\nНапишите любое сообщение, чтобы продолжить.`);
+    const keyboard = Keyboard.inlineKeyboard([
+        [
+            Keyboard.button.link('📅 Запланировать событие', 'https://ecology-app.vercel.app')
+        ]
+    ]);
+
+    ctx.reply(
+        `Привет, ${userName}! 👋\n\n` +
+        `Я создан для того, чтобы сделать нашу планету чуточку лучше! 🌍\n\n` +
+        `Теперь я буду автоматически уведомлять тебя о новых событиях! 📢\n\n` +
+        `Доступные команды:\n` +
+        `/events - 📅 Посмотреть все события\n` +
+        `/unsubscribe - 🔕 Отписаться от уведомлений\n` +
+        `/monitor_status - 📊 Статус мониторинга\n` +
+        `/help - ❓ Помощь по командам\n\n` +
+        `Или ты можешь запланировать свое мероприятие прямо сейчас! :0`,
+        {
+            attachments: [keyboard]
+        }
+    );
 });
 
-// Команда /help
-bot.command('help', (ctx) => {
-    ctx.reply(`📋 **Доступные команды:**\n\n` +
-        `/start - Начать работу с ботом\n` +
-        `/addevent - Добавить новое событие\n` +
-        `/events - Посмотреть все предстоящие события\n` +
-        `/help - Показать эту справку`);
-});
-
-// Команда /addevent
-bot.command('addevent', (ctx) => {
+// Команда для отписки от уведомлений
+bot.command('unsubscribe', (ctx) => {
     const chatId = ctx.update.message?.recipient?.chat_id;
-    const userName = ctx.update.message?.from?.first_name || 'Аноним';
+    const userName = ctx.update.message?.from?.first_name || 'Пользователь';
 
-    userStates.set(chatId, {
-        state: USER_STATES.ADDING_EVENT,
-        step: EVENT_STEPS.NAME,
-        eventData: { author: userName },
-        previousSteps: []
-    });
+    const removed = removeSubscriber(chatId);
 
-    const keyboard = createEventKeyboard(false);
-    ctx.reply('Отлично! Давайте создадим новое экологическое событие. 🍃\n\n**Шаг 1 из 5**\nВведите название события:', {
-        attachments: [keyboard]
-    });
+    if (removed) {
+        ctx.reply(
+            `🔕 ${userName}, ну и пожалуйста(.\n\n` +
+            `Но если вдруг передумаешь, то просто тык на команду /start`
+        );
+    } else {
+        ctx.reply(
+            `ℹ️ ${userName}, так ты и не был подписан на уведомления)\n\n` +
+            `Чтобы подписаться, тык на команду /start`
+        );
+    }
 });
 
-// Команда /events
+bot.command('help', (ctx) => {
+    const keyboard = Keyboard.inlineKeyboard([
+        [
+            Keyboard.button.link('🌐 Тык сюда', 'https://ecology-app.vercel.app')
+        ]
+    ]);
+
+    ctx.reply(
+        `📋 Доступные команды:\n\n` +
+        `/start - Начать работу с ботом и подписаться на уведомления\n` +
+        `/unsubscribe - Отписаться от уведомлений\n` +
+        `/events - Посмотреть все предстоящие события\n` +
+        `/monitor_status - Показать статус мониторинга новых событий\n` +
+        `/check_new - Принудительно проверить новые события\n` +
+        `/help - Показать эту справку\n\n` +
+        `🔔 После /start вы будете автоматически получать уведомления о новых событиях!\n\n` +
+        `🌱 Бот проверяет новые события каждые 1-2 минуты автоматически!`,
+        {
+            attachments: [keyboard]
+        }
+    );
+});
+
+// Команда для просмотра событий
 bot.command('events', async (ctx) => {
     try {
-        const events = await getAllEvents();
+        console.log('🔄 Запрос событий от пользователя');
+
+        const loadingMessage = await ctx.reply('🔄 Загружаю актуальные события...');
+
+        const events = await getEventsFromAPI();
+
+        const keyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.link('📅 Запланировать своё событие', 'https://ecology-app.vercel.app')
+            ]
+        ]);
 
         if (events.length === 0) {
-            ctx.reply('📅 На данный момент нет запланированных событий.\n\nХотите создать первое событие? Используйте команду /addevent');
+            await ctx.reply(
+                'Пока что запланированных событий нет :9(\n\n' +
+                'Но ты можешь стать первым!',
+                {
+                    attachments: [keyboard]
+                }
+            );
             return;
         }
 
-        let message = '📅 **Предстоящие события:**\n\n';
-        events.forEach((event, index) => {
-            const date = new Date(event.date).toLocaleDateString('ru-RU');
-            const type = EVENT_TYPES[event.type] || event.type;
+        let message = `📅 Актуальные события (${events.length}):\n\n`;
 
-            message += `**${index + 1}. ${event.name}**\n` +
+        events.forEach((event, index) => {
+            const eventType = EVENT_TYPES[event.type] || event.type;
+            const eventDate = formatDate(event.date);
+
+            message += `${index + 1}. ${event.name}\n` +
                 `📝 ${event.description}\n` +
-                `🏷️ Тип: ${type}\n` +
-                `📅 Дата: ${date}\n` +
-                `📍 Адрес: ${event.address}\n` +
-                `👤 Организатор: ${event.author}\n\n`;
+                `🏷️ ${eventType}\n` +
+                `📅 ${eventDate}\n` +
+                `📍 ${event.address}\n` +
+                `👤 Организатор: ${event.author}\n`;
+
+            if (index < events.length - 1) {
+                message += '\n' + '─'.repeat(15) + '\n\n';
+            }
         });
 
-        ctx.reply(message);
+        message += `\n🎯 Хочешь организовать своё событие?`;
+
+        await ctx.reply(message, {
+            attachments: [keyboard]
+        });
+
     } catch (error) {
-        console.error('Ошибка при получении событий:', error);
-        ctx.reply('❌ Произошла ошибка при получении списка событий.');
+        console.error('❌ Ошибка при получении событий:', error);
+
+        const keyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.link('Тык на кнопочку', 'https://ecology-app.vercel.app')
+            ]
+        ]);
+
+        await ctx.reply(
+            '❌ Не удалось загрузить события.\n\n' +
+            'У нас технические шоколадки, попробуй немного позже',
+            {
+                attachments: [keyboard]
+            }
+        );
     }
 });
 
-// Обработчик текстовых сообщений
-bot.on('message_created', async (ctx) => {
-    const chatId = ctx.update.message?.recipient?.chat_id;
+bot.on('message_created', (ctx) => {
     const text = ctx.update.message?.body?.text;
     const userName = ctx.update.message?.from?.first_name || 'Пользователь';
 
-    if (text && text.startsWith('/')) return;
-
-    const userState = userStates.get(chatId);
-    if (!userState) {
-        ctx.reply('Для начала работы с ботом отправьте команду /start');
+    if (text && text.startsWith('/')) {
         return;
     }
 
-    if (userState.state === USER_STATES.ADDING_EVENT) {
-        await handleEventCreation(ctx, chatId, text, userState);
-        return;
-    }
+    const keyboard = Keyboard.inlineKeyboard([
+        [
+            Keyboard.button.link('📅 Запланировать событие', 'https://ecology-app.vercel.app')
+        ]
+    ]);
 
-    if (userState.state === USER_STATES.AWAITING_MESSAGE) {
-        userStates.set(chatId, { state: USER_STATES.ASKED_PARTICIPATION });
-        ctx.reply(`Приятно познакомиться, ${userName}! 😊\n\nХотите ли вы принять участие в экологических мероприятиях?`, {
-            attachments: [participationKeyboard]
-        });
-    } else if (userState.state === USER_STATES.ASKED_PARTICIPATION) {
-        ctx.reply('Вы уже получили вопрос об участии. Пожалуйста, используйте кнопки выше для ответа. 👍');
-    }
-});
-
-// Функция создания события (использует прямой SQL)
-async function handleEventCreation(ctx, chatId, text, userState) {
-    const eventData = userState.eventData;
-    const currentStep = userState.step;
-    const previousSteps = userState.previousSteps || [];
-
-    try {
-        switch (currentStep) {
-            case EVENT_STEPS.NAME:
-                if (!text?.trim()) {
-                    ctx.reply('❌ Название не может быть пустым. Введите название события:', {
-                        attachments: [createEventKeyboard(false)]
-                    });
-                    return;
-                }
-                eventData.name = text.trim();
-                previousSteps.push(EVENT_STEPS.NAME);
-                userStates.set(chatId, { ...userState, step: EVENT_STEPS.DESCRIPTION, previousSteps });
-                ctx.reply('**Шаг 2 из 5**\nОтлично! Теперь введите описание события:', {
-                    attachments: [createEventKeyboard(true)]
-                });
-                break;
-
-            case EVENT_STEPS.DESCRIPTION:
-                if (!text?.trim()) {
-                    ctx.reply('❌ Описание не может быть пустым. Введите описание события:', {
-                        attachments: [createEventKeyboard(true)]
-                    });
-                    return;
-                }
-                eventData.description = text.trim();
-                previousSteps.push(EVENT_STEPS.DESCRIPTION);
-                userStates.set(chatId, { ...userState, step: EVENT_STEPS.TYPE, previousSteps });
-                ctx.reply('**Шаг 3 из 5**\nВыберите тип события:\n\n1. Субботник\n2. Сбор макулатуры\n3. Сбор батареек\n4. Сбор пластика\n5. Захват власти\n6. Высадка деревьев\n7. Другое\n\nВведите номер типа:', {
-                    attachments: [createEventKeyboard(true)]
-                });
-                break;
-
-            case EVENT_STEPS.TYPE:
-                const typeMap = {
-                    '1': 'SUBBOTNIK', '2': 'PAPER_COLLECTION', '3': 'BATTERY_COLLECTION',
-                    '4': 'PLASTIC_COLLECTION', '5': 'MITTING', '6': 'PLANTING_TREES', '7': 'OTHER'
-                };
-                const typeKey = typeMap[text];
-                if (!typeKey) {
-                    ctx.reply('❌ Пожалуйста, введите номер от 1 до 7', {
-                        attachments: [createEventKeyboard(true)]
-                    });
-                    return;
-                }
-                eventData.type = typeKey;
-                previousSteps.push(EVENT_STEPS.TYPE);
-                userStates.set(chatId, { ...userState, step: EVENT_STEPS.DATE, previousSteps });
-                ctx.reply('**Шаг 4 из 5**\nВведите дату события в формате ДД.ММ.ГГГГ (например, 25.12.2024):', {
-                    attachments: [createEventKeyboard(true)]
-                });
-                break;
-
-            case EVENT_STEPS.DATE:
-                const dateMatch = text.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-                if (!dateMatch) {
-                    ctx.reply('❌ Неверный формат даты. Используйте ДД.ММ.ГГГГ (например, 25.12.2024)', {
-                        attachments: [createEventKeyboard(true)]
-                    });
-                    return;
-                }
-                const [_, day, month, year] = dateMatch;
-                const dateObj = new Date(`${year}-${month}-${day}`);
-                if (isNaN(dateObj.getTime())) {
-                    ctx.reply('❌ Неверная дата. Проверьте правильность ввода', {
-                        attachments: [createEventKeyboard(true)]
-                    });
-                    return;
-                }
-                eventData.date = dateObj.toISOString();
-                previousSteps.push(EVENT_STEPS.DATE);
-                userStates.set(chatId, { ...userState, step: EVENT_STEPS.ADDRESS, previousSteps });
-                ctx.reply('**Шаг 5 из 5**\nВведите адрес проведения события:', {
-                    attachments: [createEventKeyboard(true)]
-                });
-                break;
-
-            case EVENT_STEPS.ADDRESS:
-                if (!text?.trim()) {
-                    ctx.reply('❌ Адрес не может быть пустым. Введите адрес проведения события:', {
-                        attachments: [createEventKeyboard(true)]
-                    });
-                    return;
-                }
-                eventData.address = text.trim();
-
-                // Сохраняем в PostgreSQL напрямую
-                const newEvent = await createEvent(eventData);
-                const eventDate = new Date(newEvent.date).toLocaleDateString('ru-RU');
-                const eventType = EVENT_TYPES[newEvent.type] || newEvent.type;
-
-                ctx.reply(`🎉 **Событие успешно создано!**\n\n` +
-                    `**Название:** ${newEvent.name}\n` +
-                    `**Описание:** ${newEvent.description}\n` +
-                    `**Тип:** ${eventType}\n` +
-                    `**Дата:** ${eventDate}\n` +
-                    `**Адрес:** ${newEvent.address}\n\n` +
-                    `Теперь другие пользователи могут увидеть его через команду /events`);
-
-                userStates.set(chatId, { state: USER_STATES.IDLE });
-                break;
+    ctx.reply(
+        `Привет, ${userName}! 👋\n\n` +
+        `Хочешь посмотреть актуальные события?\n\n` +
+        `Тык на команду /events чтобы увидеть все мероприятия!\n\n` +
+        `Или можешь тыкнуть ну кнопочку ниже, чтобы запланировать свое событие!`,
+        {
+            attachments: [keyboard]
         }
-    } catch (error) {
-        console.error('Ошибка при создании события:', error);
-        ctx.reply('❌ Произошла ошибка. Начните заново с команды /addevent');
-        userStates.set(chatId, { state: USER_STATES.IDLE });
-    }
-}
-
-// Обработчики callback (без изменений)
-bot.on('message_callback', (ctx) => {
-    try {
-        const callbackData = ctx.update.callback?.payload;
-        const chatId = ctx.update.message?.recipient?.chat_id;
-
-        if (callbackData === 'back_button') {
-            handleBackButton(ctx, chatId);
-        } else if (callbackData === 'cancel_button') {
-            handleCancelButton(ctx, chatId);
-        } else if (callbackData === 'dont_want') {
-            handleDontWantButton(ctx, chatId);
-        }
-    } catch (error) {
-        console.error('Ошибка в обработчике message_callback:', error);
-    }
+    );
 });
 
-// Функции обработки кнопок (без изменений)
-function handleBackButton(ctx, chatId) {
-    // ... существующий код
-}
-
-function handleCancelButton(ctx, chatId) {
-    userStates.set(chatId, { state: USER_STATES.IDLE });
-    ctx.reply('❌ Создание события отменено.\n\nЕсли передумаете - используйте команду /addevent');
-}
-
-function handleDontWantButton(ctx, chatId) {
-    userStates.set(chatId, { state: USER_STATES.IDLE });
-    ctx.reply('Жаль, что вы не хотите участвовать 😔\n\nЕсли передумаете - всегда можете написать /start снова!\n\nА пока можете посмотреть существующие события командой /events');
-}
-
-// мяумяумямумумямяумяумуямуямумяямумуямяумяумямяумуямяумяумяумуямяумямяумяумяумуямяумяуммяумуямяумяумяумяумяумуямяумяуммяумяумуямуямуямуямуямяумуямяумяумумяумямяумуямяумяумуямуямуямуяммуямумумумуямяумуяммумумуямуямуямуямуямумумуммумумумуямумумуямуямяумяумуямяум
-// Создаем Express сервер для бота
-const botApp = express();
-botApp.use(express.json());
-
-const BOT_PORT = process.env.BOT_PORT || 3001;
-
-// Эндпоинт для отправки сообщений через API
-botApp.post('/send-message', async (req, res) => {
-    try {
-        const { chatId, message } = req.body;
-
-        if (!chatId || !message) {
-            return res.status(400).json({
-                error: 'Обязательные поля: chatId, message'
-            });
-        }
-
-        // Отправляем сообщение через бота
-        await bot.sendMessage(chatId, message);
-
-        res.json({
-            success: true,
-            message: 'Сообщение отправлено',
-            chatId: chatId
-        });
-
-    } catch (error) {
-        console.error('Ошибка при отправке сообщения:', error);
-        res.status(500).json({
-            error: 'Ошибка при отправке сообщения'
-        });
-    }
+// Обработчик ошибок
+bot.on('error', (error) => {
+    console.error('❌ Ошибка бота:', error);
 });
 
-// Запускаем сервер бота
-botApp.listen(BOT_PORT, () => {
-    console.log(`🤖 Сервер бота запущен на порту ${BOT_PORT}`);
-});
+// Запуск бота и мониторинга
+console.log('🚀 Запуск бота для Ecology App...');
+console.log(`🌐 API источник: ${ECOLOGY_API_URL}`);
 
-// Запуск бота
-console.log('🚀 Запуск автономного бота с прямым PostgreSQL...');
 bot.start().then(() => {
     console.log('✅ Бот запущен успешно');
-    console.log('🗄️ Прямое подключение к PostgreSQL');
+    console.log('📡 Бот получает события с внешнего API');
+    console.log('🔔 Система уведомлений активирована');
+    console.log('👁️  Запуск мониторинга новых событий');
+    console.log('💬 Доступные команды:');
+    console.log('   • /start - начать работу и подписаться');
+    console.log('   • /events - посмотреть события');
+    console.log('   • /unsubscribe - отписаться от уведомлений');
+    console.log('   • /monitor_status - статус мониторинга');
+    console.log('   • /check_new - принудительная проверка');
+    console.log('   • /help - помощь');
+
+    // Запускаем мониторинг после успешного старта бота
+    startEventMonitoring();
 }).catch(error => {
     console.error('❌ Ошибка запуска бота:', error);
 });
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-    console.log('🛑 Остановка бота...');
-    await client.end();
-    process.exit(0);
-});
