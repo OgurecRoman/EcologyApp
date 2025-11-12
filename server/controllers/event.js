@@ -36,6 +36,26 @@ export async function postEvents(req, res) {
     }
 };
 
+// После создания события
+import fetch from 'node-fetch';
+
+// ... после создания события
+const newEvent = await prisma.event.create({ ... });
+
+// Отправляем уведомление о новом событии
+try {
+    await fetch('http://localhost:3000/notifications/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chatIds: [/* массив chatId подписчиков */],
+            message: `🎉 Новое событие: ${newEvent.name}\n📅 ${new Date(newEvent.date).toLocaleDateString('ru-RU')}\n📍 ${newEvent.address}`
+        })
+    });
+} catch (error) {
+    console.error('Ошибка при отправке уведомления:', error);
+}
+
 export async function patchEvents(req, res) {
     try {
         const data = req.body;
