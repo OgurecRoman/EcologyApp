@@ -7,6 +7,7 @@ export async function getEvents(req, res) {
         console.log('Фильтры (controller):', { city, types: typesArray });
 
         const events = await eventsService.getEvents({ city, types: typesArray });
+        console.log(events);
         res.json(events);
     } catch (error) {
         console.error('Ошибка в getEvents:', error);
