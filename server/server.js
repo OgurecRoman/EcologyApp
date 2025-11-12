@@ -17,7 +17,7 @@ async function startServer(){
         const PORT = process.env.PORT || 3000;
 
         app.use(cors({
-            origin: 'https://ecology-app-front.vercel.app/',
+            origin: '*',
             credentials: true
         }));
 
