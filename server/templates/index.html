@@ -47,9 +47,6 @@ form button { cursor: pointer; }
     <label>Автор:</label>
     <input type="text" id="author" required />
     
-    <label>Участники (ID через запятую):</label>
-    <input type="text" id="participants" placeholder="Например: 1,2,3" />
-    
     <button type="submit">Добавить событие</button>
 </form>
 
@@ -129,8 +126,7 @@ async function loadEventMarkers() {
                 balloonContentBody:
                     "<strong>Дата:</strong> " + new Date(event.date).toLocaleString('ru-RU') +
                     "<br><strong>Адрес:</strong> " + event.address +
-                    "<br><strong>Автор:</strong> " + event.author +
-                    "<br><strong>Участники:</strong> " + (event.participants.map(p => p.name).join(', ') || 'Нет')
+                    "<br><strong>Автор:</strong> " + event.author
             });
             myMap.geoObjects.add(placemark);
             eventPlacemarks.push(placemark);
@@ -141,11 +137,6 @@ async function loadEventMarkers() {
 // Форма добавления события
 document.getElementById('eventForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-
-    const participantIds = document.getElementById('participants').value
-        .split(',')
-        .map(id => parseInt(id.trim()))
-        .filter(id => !isNaN(id));
 
     const eventData = {
         name: document.getElementById('name').value,
