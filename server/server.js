@@ -3,7 +3,7 @@ import express from 'express';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-const cors = require('cors');
+import cors from 'cors';
 import fs from 'fs';
 
 dotenv.config();
@@ -17,7 +17,7 @@ async function startServer(){
         const PORT = process.env.PORT || 3000;
 
         app.use(cors({
-            origin: 'https://ecology-app.vercel.app ',
+            origin: 'https://ecology-app-front.vercel.app/',
             credentials: true
         }));
 

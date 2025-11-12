@@ -5,11 +5,13 @@ function App() {
   const [events, setEvent] = useState([]);
 
   useEffect(() => {
-    fetch('https://ecology-app.vercel.app/events')
+    fetch('https://ecology-app-test.vercel.app/events')
       .then(res => res.json())
       .then(data => setEvent(data))
       .catch(err => console.error('Ошибка:', err));
   }, []);
+
+  console.log(events);
 
   return (
     <div>
