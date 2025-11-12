@@ -16,8 +16,6 @@ form button { cursor: pointer; }
 </head>
 <body>
 <h1>🗺️ Карта событий </h1>
-<h3 id="id">id</h3>
-<h3 id="user">user</h3>
 
 <div id="map"></div>
 
@@ -73,7 +71,6 @@ async function initWebApp() {
     if (window.WebApp) {
         try{
             const data = window.WebApp.initDataUnsafe;
-            document.getElementById('id').textContent = `${data.user.id} ${data.user.first_name}`;
             const user = await fetchUser(data.user.id, data.user.first_name);
             document.getElementById('user').textContent = `${user.username}`;
 
