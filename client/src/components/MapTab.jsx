@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const MapTab = () => {
-  const [events, setEvents] = useState([]);\
+  const [events, setEvents] = useState([]);
   const [filterCity, setFilterCity] = useState('');
   const [filterTypes, setFilterTypes] = useState([]);
   const [userCity, setUserCity] = useState('Москва');
