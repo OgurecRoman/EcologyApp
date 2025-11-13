@@ -31,7 +31,7 @@ export function getSubscribers() {
     return Array.from(subscriberContexts.keys());
 }
 
-// Добавьте в конец notification.js
+// В конец файла notification.js добавьте:
 export function getSubscribersCount() {
     return subscriberContexts.size;
 }

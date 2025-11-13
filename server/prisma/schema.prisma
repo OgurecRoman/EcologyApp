@@ -1,21 +1,12 @@
-// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
+  engineType = "wasm"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-enum EventType {
-  SUBBOTNIK
-  PAPER_COLLECTION
-  BATTERY_COLLECTION
-  PLASTIC_COLLECTION
-  MITTING
-  PLANTING_TREES
-  OTHER
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 model Event {
@@ -26,8 +17,27 @@ model Event {
   date        DateTime
   address     String
   author      String
+  participants User[]
+  isNotificate  Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
 
-  @@map("Event")
+model User {
+  id        Int      @id
+  username  String
+  events    Event[]
+  rating   Int    @default(0)
+  lastActivity DateTime?
+  createdAt DateTime @default(now())
+}
+
+enum EventType {
+  SUBBOTNIK
+  PAPER_COLLECTION
+  BATTERY_COLLECTION
+  PLASTIC_COLLECTION
+  GLASS_COLLECTION
+  ELECTRONICS_COLLECTION
+  OTHER
 }

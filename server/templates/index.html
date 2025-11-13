@@ -1,182 +1,298 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Карта событий</title>
-<script src="https://api-maps.yandex.ru/2.1/?apikey=aa41fd1c-f570-4490-9b73-ae3db02fa604&lang=ru_RU" type="text/javascript"></script>
-<script src="https://st.max.ru/js/max-web-app.js"></script>
-<style>
-body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
-#map { width: 100%; height: 500px; margin-bottom: 20px; }
-form { margin: 20px auto; width: 400px; text-align: left; }
-form input, form select, form textarea, form button { width: 100%; margin-bottom: 10px; padding: 5px; }
-form button { cursor: pointer; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта событий</title>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=aa41fd1c-f570-4490-9b73-ae3db02fa604&lang=ru_RU" type="text/javascript"></script>
+    <script src="https://st.max.ru/js/max-web-app.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
+        #map { width: 100%; height: 500px; margin-bottom: 20px; }
+        form { margin: 20px auto; width: 400px; text-align: left; }
+        form input, form select, form textarea, form button { width: 100%; margin-bottom: 10px; padding: 5px; }
+        form button { cursor: pointer; }
+        #filters { margin: 20px auto; width: 450px; text-align: left; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; }
+        .filter-group { margin-bottom: 15px; }
+        .filter-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .checkbox-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .checkbox-list label { font-weight: normal; display: flex; align-items: center; gap: 5px; }
+        .filter-buttons { display: flex; gap: 10px; }
+
+        /* Стили для вкладок */
+        .tabs { display: flex; justify-content: center; margin: 20px 0; }
+        .tab-button { padding: 10px 20px; background: #eee; border: 1px solid #ccc; cursor: pointer; margin: 0 5px; border-radius: 6px 6px 0 0; }
+        .tab-button.active { background: #fff; border-bottom: none; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
 <body>
 <h1>🗺️ Карта событий </h1>
-<h3 id="id">id</h3>
-<h3 id="user">user</h3>
 
-<div id="map"></div>
+<div class="tabs">
+    <button class="tab-button active" data-tab="map-tab">Карта</button>
+    <button class="tab-button" data-tab="add-tab">Добавить событие</button>
+</div>
 
-<h2>➕ Добавить событие</h2>
-<form id="eventForm">
-    <label>Название:</label>
-    <input type="text" id="name" required />
-    
-    <label>Описание:</label>
-    <textarea id="description" required></textarea>
-    
-    <label>Тип события:</label>
-    <select id="type" required>
-        <option value="SUBBOTNIK">Субботник</option>
-        <option value="PAPER_COLLECTION">Сбор бумаги</option>
-        <option value="BATTERY_COLLECTION">Сбор батареек</option>
-        <option value="PLASTIC_COLLECTION">Сбор пластика</option>
-        <option value="GLASS_COLLECTION">Сбор стекла</option>
-        <option value="ELECTRONICS_COLLECTION">Сбор электроники</option>
-        <option value="OTHER">Другое</option>
-    </select>
-    
-    <label>Дата и время:</label>
-    <input type="datetime-local" id="date" required />
-    
-    <label>Адрес:</label>
-    <input type="text" id="address" required />
-    
-    <label>Автор:</label>
-    <input type="text" id="author" required />
-    
-    <label>Участники (ID через запятую):</label>
-    <input type="text" id="participants" placeholder="Например: 1,2,3" />
-    
-    <button type="submit">Добавить событие</button>
-</form>
+<!-- ВКЛАДКА КАРТЫ -->
+<div id="map-tab" class="tab-content active">
+    <div id="map"></div>
+
+    <div id="filters">
+        <h2>Фильтры</h2>
+
+        <div class="filter-group">
+            <label for="filterCity">Город:</label>
+            <input type="text" id="filterCity" placeholder="Например: Москва, Санкт-Петербург" />
+        </div>
+
+        <div class="filter-group">
+            <label>Тип события (можно выбрать несколько):</label>
+            <div class="checkbox-list" id="typeCheckboxes">
+                <label><input type="checkbox" value="SUBBOTNIK"> Субботник</label>
+                <label><input type="checkbox" value="PAPER_COLLECTION"> Сбор бумаги</label>
+                <label><input type="checkbox" value="BATTERY_COLLECTION"> Сбор батареек</label>
+                <label><input type="checkbox" value="PLASTIC_COLLECTION"> Сбор пластика</label>
+                <label><input type="checkbox" value="GLASS_COLLECTION"> Сбор стекла</label>
+                <label><input type="checkbox" value="ELECTRONICS_COLLECTION"> Сбор электроники</label>
+                <label><input type="checkbox" value="OTHER"> Другое</label>
+            </div>
+        </div>
+
+        <div class="filter-buttons">
+            <button id="applyFilter">Применить фильтры</button>
+            <button id="clearFilter">Сбросить</button>
+        </div>
+    </div>
+</div>
+
+<!-- ВКЛАДКА ДОБАВЛЕНИЯ -->
+<div id="add-tab" class="tab-content">
+    <h2>Добавить событие</h2>
+    <form id="eventForm">
+        <label>Название:</label>
+        <input type="text" id="name" required />
+
+        <label>Описание:</label>
+        <textarea id="description" required></textarea>
+
+        <label>Тип события:</label>
+        <select id="type" required>
+            <option value="SUBBOTNIK">Субботник</option>
+            <option value="PAPER_COLLECTION">Сбор бумаги</option>
+            <option value="BATTERY_COLLECTION">Сбор батареек</option>
+            <option value="PLASTIC_COLLECTION">Сбор пластика</option>
+            <option value="GLASS_COLLECTION">Сбор стекла</option>
+            <option value="ELECTRONICS_COLLECTION">Сбор электроники</option>
+            <option value="OTHER">Другое</option>
+        </select>
+
+        <label>Дата и время:</label>
+        <input type="datetime-local" id="date" required />
+
+        <label>Адрес:</label>
+        <input type="text" id="address" required />
+
+        <label>Город:</label>
+        <input type="text" id="city" required />
+
+        <label>Автор:</label>
+        <input type="text" id="author" required />
+
+        <button type="submit">Добавить событие</button>
+    </form>
+</div>
 
 <script>
-async function fetchUser(id, name) {
-    try {
-        const queryParams = new URLSearchParams({ id: id, name: name });
-        const url = `/user?${queryParams.toString()}`;
-        const response = await fetch(url);
-        
-        return response.json();
-    } catch (err) {
-        console.error('Ошибка при получении пользователя', err);
-        return [];
-    }
-}
-
-async function initWebApp() {
-    if (window.WebApp) {
-        try{
-            const data = window.WebApp.initDataUnsafe;
-            document.getElementById('id').textContent = `${data.user.id} ${data.user.first_name}`;
-            const user = await fetchUser(data.user.id, data.user.first_name);
-            document.getElementById('user').textContent = `${user.username}`;
-
-        } catch (initError) {
-            return;
+    // --- ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ ---
+    async function fetchUser(id, name) {
+        try {
+            const queryParams = new URLSearchParams({ id, name });
+            const url = `/user?${queryParams.toString()}`;
+            const response = await fetch(url);
+            return await response.json();
+        } catch (err) {
+            console.error('Ошибка получения пользователя', err);
+            return { username: 'Аноним' };
         }
-            
-    } else {
-        console.error('Window.WebApp не найден. Убедитесь, что приложение запущено в Max Messenger.');
     }
-}
 
-// Запускаем функцию после загрузки документа
-document.addEventListener('DOMContentLoaded', initWebApp);
-
-ymaps.ready(init);
-
-let myMap;
-let myPlacemark;
-let eventPlacemarks = [];
-
-async function fetchEvents() {
-    try {
-        const response = await fetch('/events');
-        return await response.json();
-    } catch (err) {
-        console.error('Ошибка при загрузке событий', err);
-        return [];
+    async function initWebApp() {
+        if (window.WebApp) {
+            try {
+                const data = window.WebApp.initDataUnsafe;
+                document.getElementById('id').textContent = `${data.user.id} ${data.user.first_name}`;
+                const user = await fetchUser(data.user.id, data.user.first_name);
+                document.getElementById('user').textContent = user.username || 'Пользователь';
+            } catch (err) {
+                console.error('WebApp init error:', err);
+            }
+        }
     }
-}
+    document.addEventListener('DOMContentLoaded', initWebApp);
 
-function init() {
-    myMap = new ymaps.Map('map', {
-        center: [55.751244, 37.618423],
-        zoom: 10
-    });
+    // --- КАРТА ---
+    ymaps.ready(init);
+    let myMap, userCity = 'Москва', currentGeneration = 0, eventPlacemarks = [];
 
-    loadEventMarkers();
-}
+    async function fetchEvents(city = '', types = []) {
+        try {
+            const params = new URLSearchParams();
+            if (city) params.append('city', city);
+            if (types.length > 0) params.append('types', types.join(','));
+            const url = params.toString() ? `/events?${params.toString()}` : '/events';
+            console.log('Запрос к серверу:', url);
+            const response = await fetch(url);
+            return await response.json();
+        } catch (err) {
+            console.error('Ошибка загрузки событий:', err);
+            return [];
+        }
+    }
 
-async function loadEventMarkers() {
-    const events = await fetchEvents();
-    eventPlacemarks.forEach(p => myMap.geoObjects.remove(p));
-    eventPlacemarks = [];
+    function init() {
+        myMap = new ymaps.Map('map', { center: [55.751244, 37.618423], zoom: 10 });
 
-    events.forEach(event => {
-        if (!event.address) return;
+        ymaps.geolocation.get({ provider: 'browser' })
+            .then(async result => {
+                const position = result.position;
+                myMap.setCenter(position, 10);
+                const res = await ymaps.geocode(position);
+                const detectedCity = res.geoObjects.get(0).getLocalities()[0] || 'Москва';
 
-        ymaps.geocode(event.address).then(res => {
-            const geoObject = res.geoObjects.get(0);
-            if (!geoObject) return;
+                if (confirm(`Ваш город — ${detectedCity}?`)) {
+                    userCity = detectedCity;
+                } else {
+                    userCity = prompt('Введите ваш город:', detectedCity) || 'Москва';
+                    const centerRes = await ymaps.geocode(userCity);
+                    const coords = centerRes.geoObjects.get(0).geometry.getCoordinates();
+                    myMap.setCenter(coords, 10);
+                }
 
-            const coords = geoObject.geometry.getCoordinates();
-            const placemark = new ymaps.Placemark(coords, {
-                balloonContentHeader: event.name,
-                balloonContentBody:
-                    "<strong>Дата:</strong> " + new Date(event.date).toLocaleString('ru-RU') +
-                    "<br><strong>Адрес:</strong> " + event.address +
-                    "<br><strong>Автор:</strong> " + event.author +
-                    "<br><strong>Участники:</strong> " + (event.participants.map(p => p.name).join(', ') || 'Нет')
+                document.getElementById('filterCity').value = userCity;
+                loadEventMarkers(userCity);
+            })
+            .catch(() => {
+                userCity = 'Москва';
+                document.getElementById('filterCity').value = userCity;
+                loadEventMarkers(userCity);
             });
-            myMap.geoObjects.add(placemark);
-            eventPlacemarks.push(placemark);
+
+        // --- ФИЛЬТРЫ ---
+        document.getElementById('applyFilter').addEventListener('click', async () => {
+            const filterCity = document.getElementById('filterCity').value.trim();
+            const checked = document.querySelectorAll('#typeCheckboxes input:checked');
+            const filterTypes = Array.from(checked).map(cb => cb.value);
+
+            if (filterCity && filterCity !== userCity) {
+                try {
+                    const res = await ymaps.geocode(filterCity);
+                    const coords = res.geoObjects.get(0).geometry.getCoordinates();
+                    myMap.setCenter(coords, 10);
+                    userCity = filterCity;
+                } catch (err) {
+                    alert('Город не найден. Проверьте написание.');
+                }
+            }
+
+            loadEventMarkers(filterCity, filterTypes);
+        });
+
+        document.getElementById('clearFilter').addEventListener('click', () => {
+            document.getElementById('filterCity').value = userCity;
+            document.querySelectorAll('#typeCheckboxes input').forEach(cb => cb.checked = false);
+            loadEventMarkers(userCity, []);
+        });
+    }
+
+    async function loadEventMarkers(city = '', types = []) {
+        currentGeneration++;
+        const gen = currentGeneration;
+
+        const events = await fetchEvents(city, types);
+        console.log('Отфильтрованные события:', events);
+
+        myMap.geoObjects.removeAll();
+        eventPlacemarks = [];
+
+        const promises = events.map(event => {
+            if (!event.address) return Promise.resolve();
+            return ymaps.geocode(event.address).then(res => {
+                if (gen !== currentGeneration) return;
+                const geoObject = res.geoObjects.get(0);
+                if (!geoObject) return;
+                const coords = geoObject.geometry.getCoordinates();
+                const placemark = new ymaps.Placemark(coords, {
+                    balloonContentHeader: event.name,
+                    balloonContentBody: `
+                        <strong>Дата:</strong> ${new Date(event.date).toLocaleString('ru-RU')}<br>
+                        <strong>Адрес:</strong> ${event.address}<br>
+                        <strong>Автор:</strong> ${event.author}<br>
+                    `
+                });
+                myMap.geoObjects.add(placemark);
+                eventPlacemarks.push(placemark);
+            });
+        });
+
+        await Promise.all(promises);
+    }
+
+    // --- ФОРМА ДОБАВЛЕНИЯ ---
+    document.getElementById('eventForm').addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const eventData = {
+            name: document.getElementById('name').value,
+            description: document.getElementById('description').value,
+            type: document.getElementById('type').value,
+            date: document.getElementById('date').value,
+            address: document.getElementById('address').value,
+            city: document.getElementById('city').value,
+            author: document.getElementById('author').value,
+            participantIds
+        };
+
+        try {
+            const res = await fetch('/events', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(eventData)
+            });
+
+            if (!res.ok) throw new Error('Ошибка сервера');
+            const newEvent = await res.json();
+            alert(`Событие добавлено: ${newEvent.name}`);
+
+            const checked = document.querySelectorAll('#typeCheckboxes input:checked');
+            const filterTypes = Array.from(checked).map(cb => cb.value);
+            loadEventMarkers(userCity, filterTypes);
+            document.getElementById('eventForm').reset();
+            switchTab('map-tab');
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка при добавлении события');
+        }
+    });
+
+    // --- ВКЛАДКИ ---
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tab;
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
         });
     });
-}
 
-// Форма добавления события
-document.getElementById('eventForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const participantIds = document.getElementById('participants').value
-        .split(',')
-        .map(id => parseInt(id.trim()))
-        .filter(id => !isNaN(id));
-
-    const eventData = {
-        name: document.getElementById('name').value,
-        description: document.getElementById('description').value,
-        type: document.getElementById('type').value,
-        date: document.getElementById('date').value,
-        address: document.getElementById('address').value,
-        author: document.getElementById('author').value,
-        participantIds: participantIds
-    };
-
-    try {
-        const res = await fetch('/events', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(eventData)
-        });
-        const newEvent = await res.json();
-        alert('Событие добавлено: ' + newEvent.name);
-
-        loadEventMarkers();
-        document.getElementById('eventForm').reset();
-    } catch (err) {
-        console.error(err);
-        alert('Ошибка при добавлении события');
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        document.getElementById(tabId).classList.add('active');
     }
-});
 </script>
-
 </body>
 </html>

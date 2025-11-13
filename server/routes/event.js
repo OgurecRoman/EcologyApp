@@ -8,6 +8,7 @@ router.post('/', eventsController.postEvents);
 router.patch('/', eventsController.patchEvents);
 router.delete('/', eventsController.deleteEvents);
 
-// router.get('/my', eventsController.getMyEvents);
+router.post('/join', eventsController.joinEvent);
+router.get('/my', eventsController.getMyEvents);
 
 export default router;

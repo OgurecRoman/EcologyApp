@@ -4,12 +4,42 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/notification.js" afterDir="false" />
+    <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="Попытка заставить его присылать уведомления, пока присылает только по команде /check_new, а сам не хочет">
+      <change afterPath="$PROJECT_DIR$/server/utils/periodUtils.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/bot.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/bot.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/notification.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/notification.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/api/cron-job.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/api/cron-job.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/controllers/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/event.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/lib/prisma.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/lib/prisma.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/dotenv/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/dotenv/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/dotenv/README-es.md" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/dotenv/README-es.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/dotenv/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/dotenv/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/dotenv/lib/main.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/dotenv/lib/main.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/dotenv/lib/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/dotenv/lib/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/dotenv/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/dotenv/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/prisma/migrations/20251109094459_init/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/prisma/migrations/20251109210255_init/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/prisma/migrations/20251111110131_init/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/prisma/migrations/20251111113200_init/migration.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/prisma/migrations/migration_lock.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/routes/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/event.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/routes/notification.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/notification.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/event.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/server/templates/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +86,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "JavaScript Debug.join.executor": "Debug",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Node.js.bot.js.executor": "Run",
     "Node.js.event.js.executor": "Run",
@@ -63,6 +94,7 @@
     "Node.js.prisma-setup.js.executor": "Run",
     "Node.js.server.js.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "notification",
     "last_opened_file_path": "/Users/chebooreka/WebstormProjects/max/EcologyApp/app",
@@ -84,10 +116,13 @@
       <recent name="$PROJECT_DIR$/prisma" />
     </key>
   </component>
-  <component name="RunManager" selected="Node.js.bot.js">
+  <component name="RunManager" selected="Node.js.server.js">
     <configuration name="migration.sql" type="DatabaseScript" editBeforeRun="true">
       <script-file value="$PROJECT_DIR$/server/prisma/migrations/20251109094459_init/migration.sql" />
       <script-mode>FILE</script-mode>
+      <method v="2" />
+    </configuration>
+    <configuration name="join" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:3000/events/join">
       <method v="2" />
     </configuration>
     <configuration name="bot.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/app/bot.js" working-dir="$PROJECT_DIR$/app">
@@ -104,10 +139,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Node.js.server.js" />
+        <item itemvalue="JavaScript Debug.join" />
         <item itemvalue="Node.js.bot.js" />
         <item itemvalue="Node.js.notification-server.js" />
         <item itemvalue="Node.js.event.js" />
-        <item itemvalue="Node.js.server.js" />
       </list>
     </recent_temporary>
   </component>
@@ -130,11 +166,26 @@
       <workItem from="1762890502642" duration="1305000" />
       <workItem from="1762891956524" duration="56000" />
       <workItem from="1762892485137" duration="6241000" />
-      <workItem from="1762956632576" duration="9925000" />
+      <workItem from="1762956632576" duration="11789000" />
+      <workItem from="1763016176432" duration="1828000" />
+      <workItem from="1763018560892" duration="15199000" />
     </task>
+    <task id="LOCAL-00001" summary="Попытка заставить его присылать уведомления, пока присылает только по команде /check_new, а сам не хочет">
+      <option name="closed" value="true" />
+      <created>1762976742688</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1762976742688</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Попытка заставить его присылать уведомления, пока присылает только по команде /check_new, а сам не хочет" />
+    <option name="LAST_COMMIT_MESSAGE" value="Попытка заставить его присылать уведомления, пока присылает только по команде /check_new, а сам не хочет" />
   </component>
 </project>
