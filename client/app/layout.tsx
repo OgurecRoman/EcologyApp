@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import Script from 'next/script';
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
@@ -41,6 +42,10 @@ export default function RootLayout({
     <html lang="ru" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
         <ClientLayout>{children}</ClientLayout>
+        <Script
+          src="https://st.max.ru/js/max-web-app.js"
+          strategy="beforeInteractive"
+        />
         <Analytics />
       </body>
     </html>
