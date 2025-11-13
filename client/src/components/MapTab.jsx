@@ -1,14 +1,16 @@
 // MapTab.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const MapTab = () => {
-  let [events, setEvents] = useState([]);
+  const [events, setEvents] = useState([]);\
   const [filterCity, setFilterCity] = useState('');
   const [filterTypes, setFilterTypes] = useState([]);
   const [userCity, setUserCity] = useState('Москва');
   const [ymaps, setYmaps] = useState(null);
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
+
+  console.log(events);
 
   // Загрузка Yandex Maps API
   useEffect(() => {
@@ -27,56 +29,52 @@ const MapTab = () => {
     }
   }, []);
 
-  // Инициализация карты
-  useEffect(() => {
-    if (ymaps && !mapInstance.current) {
-      mapInstance.current = new ymaps.Map(mapRef.current, {
-        center: [55.751244, 37.618423],
-        zoom: 10,
-      });
-
-      ymaps.geolocation.get({ provider: 'browser' })
-        .then(result => {
-          const position = result.position;
-          mapInstance.current.setCenter(position, 10);
-          ymaps.geocode(position)
-            .then(res => {
-              const detectedCity = res.geoObjects.get(0).getLocalities()[0] || 'Москва';
-              setUserCity(detectedCity);
-              setFilterCity(detectedCity);
-              loadEventMarkers(detectedCity);
-            });
-        })
-        .catch(() => {
-          loadEventMarkers('Москва');
-        });
+  // Оберните loadEventMarkers в useCallback
+  // Укажите все зависимости, которые использует функция
+  const loadEventMarkers = useCallback(async (city = '', types = []) => {
+    // Проверка на наличие ymaps и mapInstance.current важна
+    if (!ymaps || !mapInstance.current) {
+      console.log('Ymaps или карта не готовы');
+      return;
     }
-  }, [ymaps]);
-
-  const loadEventMarkers = async (city = '', types = []) => {
-    if (!ymaps || !mapInstance.current) return;
 
     try {
       const params = new URLSearchParams();
       if (city) params.append('city', city);
       if (types.length > 0) params.append('types', types.join(','));
 
+      // Убедитесь, что REACT_APP_URL в .env.local содержит ваш API URL
       const url = `${process.env.REACT_APP_URL}/events${params.toString() ? '?' + params.toString() : ''}`;
-      console.log(url);
+      console.log('Загрузка событий из:', url);
+
       const response = await fetch(url);
-      events = await response.json();
 
-      setEvents(events);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
+      // ✅ Правильно: получаем JSON и сразу обновляем состояние
+      const fetchedEvents = await response.json();
+      setEvents(fetchedEvents);
+
+      // Очищаем существующие метки
       mapInstance.current.geoObjects.removeAll();
 
-      events.forEach(event => {
-        if (!event.address) return;
+      // Добавляем новые метки
+      fetchedEvents.forEach(event => {
+        if (!event.address) {
+          console.warn('Событие без адреса, пропущено:', event);
+          return; // Пропускаем, если нет адреса
+        }
 
+        // Геокодируем адрес
         ymaps.geocode(event.address)
           .then(res => {
             const geoObject = res.geoObjects.get(0);
-            if (!geoObject) return;
+            if (!geoObject) {
+              console.warn('Не удалось геокодировать адрес:', event.address);
+              return; // Пропускаем, если не найден
+            }
 
             const coords = geoObject.geometry.getCoordinates();
             const placemark = new ymaps.Placemark(coords, {
@@ -88,21 +86,59 @@ const MapTab = () => {
               `,
             });
 
+            // Добавляем метку на карту
             mapInstance.current.geoObjects.add(placemark);
+          })
+          .catch(geocodeErr => {
+            console.error('Ошибка геокодирования:', geocodeErr);
           });
       });
     } catch (err) {
       console.error('Ошибка загрузки событий:', err);
     }
-  };
+  }, [ymaps]); // Зависимость: ymaps, т.к. используется внутри
+
+  // Инициализация карты
+  useEffect(() => {
+    if (ymaps && !mapInstance.current) {
+      // Создаём экземпляр карты и сохраняем в ref
+      mapInstance.current = new ymaps.Map(mapRef.current, {
+        center: [55.751244, 37.618423],
+        zoom: 10,
+      });
+
+      // Пытаемся определить местоположение пользователя
+      ymaps.geolocation.get({ provider: 'browser' })
+        .then(result => {
+          const position = result.position;
+          mapInstance.current.setCenter(position, 10);
+          return ymaps.geocode(position);
+        })
+        .then(res => {
+          const detectedCity = res.geoObjects.get(0).getLocalities()[0] || 'Москва';
+          setUserCity(detectedCity);
+          setFilterCity(detectedCity);
+          // ✅ Теперь loadEventMarkers в зависимостях, ESLint доволен
+          loadEventMarkers(detectedCity);
+        })
+        .catch(err => {
+          console.error('Ошибка геолокации:', err);
+          // Загружаем события для Москвы по умолчанию
+          loadEventMarkers('Москва');
+        });
+    }
+  }, [ymaps, loadEventMarkers]); // <--- ✅ Добавлен loadEventMarkers
 
   const handleApplyFilters = () => {
+    // Вызываем загрузку с фильтрами
     loadEventMarkers(filterCity, filterTypes);
   };
 
   const handleClearFilters = () => {
+    // Сбрасываем фильтры
     setFilterCity(userCity);
     setFilterTypes([]);
+    // Загружаем события для текущего города
     loadEventMarkers(userCity, []);
   };
 
@@ -115,7 +151,6 @@ const MapTab = () => {
     }
   };
 
-  // ВАЖНО: Всегда возвращайте JSX, даже если ymaps не загрузился
   return (
     <div>
       {!ymaps ? (
