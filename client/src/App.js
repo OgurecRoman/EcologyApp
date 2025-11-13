@@ -1,45 +1,32 @@
-import React, { useEffect, useState } from 'react';
+// App.js
+import React, { useState, useEffect } from 'react';
+import MapTab from './components/MapTab';
+import AddEventTab from './components/AddEventTab';
+import Tabs from './components/Tabs';
 
 function App() {
-  const [events, setEvent] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('map-tab');
 
-  useEffect(() => {
-    console.log('Запрос к API начат...');
-
-    fetch('https://ecology-app-test.vercel.app/events')
-      .then(res => {
-        console.log('Ответ получен:', res.status);
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        console.log('Данные получены:', data);
-        setEvent(data);
-      })
-      .catch(err => {
-        console.error('Ошибка при загрузке событий:', err);
-        setError(err.message);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div>Загрузка...</div>;
-  if (error) return <div>Ошибка: {error}</div>;
+  console.log('Текущая вкладка:', activeTab); // Добавьте это
 
   return (
-    <div>
-      <h1>События</h1>
-      <ul>
-        {events.map(event => (
-          <li key={event.id}>{event.name}</li>
-        ))}
-      </ul>
+    <div className="app">
+      <h1>🗺️ Карта событий</h1>
+
+      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      <div className="tab-content">
+        {activeTab === 'map-tab' && (
+          <>
+            <MapTab />
+          </>
+        )}
+        {activeTab === 'add-tab' && (
+          <>
+            <AddEventTab setActiveTab={setActiveTab} />
+          </>
+        )}
+      </div>
     </div>
   );
 }
