@@ -39,10 +39,7 @@ export async function postEvents(name, description, type, date, address, city, a
             type,
             date: new Date(date),
             address: fullAddress,
-            author,
-            participants: participantIds.length > 0
-                ? { connect: participantIds.map(id => ({ id })) }
-                : undefined
+            author
         },
         include: { participants: true }
     });
