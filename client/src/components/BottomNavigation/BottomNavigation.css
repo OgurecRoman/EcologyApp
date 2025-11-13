@@ -1,0 +1,89 @@
+.bottom-navigation {
+  display: flex;
+  gap: 8px;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  padding: 8px;
+}
+
+/* стили для ToolButton в навигации */
+.bottom-navigation button {
+  flex: 1;
+  min-height: 56px;
+}
+
+.bottom-navigation button.active {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.nav-button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 64px;
+}
+
+.nav-button:hover {
+  background: #f5f5f5;
+}
+
+.nav-button.active {
+  background: #e8f5e9;
+}
+
+.nav-icon {
+  font-size: 24px;
+  transition: transform 0.2s;
+}
+
+.nav-button.active .nav-icon {
+  transform: scale(1.1);
+}
+
+.nav-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #616161;
+  transition: color 0.2s;
+}
+
+.nav-button.active .nav-label {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+@media (min-width: 769px) {
+  .bottom-navigation {
+    padding: 12px;
+  }
+
+  .bottom-navigation button {
+    min-height: 64px;
+  }
+
+  .nav-button {
+    padding: 16px 12px;
+  }
+
+  .nav-icon {
+    font-size: 28px;
+  }
+
+  .nav-label {
+    font-size: 13px;
+  }
+}
