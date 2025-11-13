@@ -1,0 +1,87 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+#map {
+  width: 500px;
+  height: 500px;
+  margin-bottom: 20px;
+}
+
+form {
+  margin: 20px auto;
+  width: 400px;
+  text-align: left;
+}
+
+form input, form select, form textarea, form button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+form button {
+  cursor: pointer;
+}
+
+#filters {
+  margin: 20px auto;
+  width: 450px;
+  text-align: left;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.filter-group {
+  margin-bottom: 15px;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.checkbox-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.checkbox-list label {
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  background: #eee;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  margin: 0 5px;
+  border-radius: 6px 6px 0 0;
+}
+
+.tab-button.active {
+  background: #fff;
+  border-bottom: none;
+  font-weight: bold;
+}
