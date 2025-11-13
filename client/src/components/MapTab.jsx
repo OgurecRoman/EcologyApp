@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const MapTab = () => {
-  const [events, setEvents] = useState([]);
+  let [events, setEvents] = useState([]);
   const [filterCity, setFilterCity] = useState('');
   const [filterTypes, setFilterTypes] = useState([]);
   const [userCity, setUserCity] = useState('Москва');
@@ -64,7 +64,7 @@ const MapTab = () => {
       const url = `${process.env.REACT_APP_URL}/events${params.toString() ? '?' + params.toString() : ''}`;
       console.log(url);
       const response = await fetch(url);
-      const events = await response.json();
+      events = await response.json();
 
       setEvents(events);
 
