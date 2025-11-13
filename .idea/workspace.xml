@@ -4,27 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="Прикиньте я сделала систему с рейтингом, и она даже работает. А че у вас коммиты на английском, мы же русские :(">
-      <change afterPath="$PROJECT_DIR$/server/controllers/blog.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/controllers/follow.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/controllers/post.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/routes/blog.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/routes/follow.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/routes/post.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/blog.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/follow.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/post.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/index.js" afterDir="false" />
-    </list>
+    <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="prikinte ya sdelala instagramm a chevo vi dobilis" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -152,7 +132,7 @@
       <workItem from="1762892485137" duration="6241000" />
       <workItem from="1762956632576" duration="11789000" />
       <workItem from="1763016176432" duration="1828000" />
-      <workItem from="1763018560892" duration="20265000" />
+      <workItem from="1763018560892" duration="20945000" />
     </task>
     <task id="LOCAL-00001" summary="Попытка заставить его присылать уведомления, пока присылает только по команде /check_new, а сам не хочет">
       <option name="closed" value="true" />
@@ -170,7 +150,15 @@
       <option name="project" value="LOCAL" />
       <updated>1763051883224</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="prikinte ya sdelala instagramm a chevo vi dobilis">
+      <option name="closed" value="true" />
+      <created>1763065582002</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1763065582002</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -179,6 +167,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Попытка заставить его присылать уведомления, пока присылает только по команде /check_new, а сам не хочет" />
     <MESSAGE value="Прикиньте я сделала систему с рейтингом, и она даже работает. А че у вас коммиты на английском, мы же русские :(" />
-    <option name="LAST_COMMIT_MESSAGE" value="Прикиньте я сделала систему с рейтингом, и она даже работает. А че у вас коммиты на английском, мы же русские :(" />
+    <MESSAGE value="prikinte ya sdelala instagramm a chevo vi dobilis" />
+    <option name="LAST_COMMIT_MESSAGE" value="prikinte ya sdelala instagramm a chevo vi dobilis" />
   </component>
 </project>
