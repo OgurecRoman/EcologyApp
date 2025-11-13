@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"
 
 const api = axios.create({
   baseURL: API_URL,
@@ -15,8 +15,6 @@ const getEvents = async (filters = []) => {
   filters.forEach((type) => params.append("type", type))
 
   const url = `/events${params.toString() ? "?" + params.toString() : ""}`
-  console.log(API_URL)
-  console.log(url)
   const response = await api.get(url)
   return response.data
 }
