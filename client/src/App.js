@@ -1,5 +1,4 @@
-// App.js
-import React, { useState } from 'react';
+import { useState } from 'react';
 import MapTab from './components/MapTab';
 import AddEventTab from './components/AddEventTab';
 import Tabs from './components/Tabs';
@@ -7,7 +6,7 @@ import Tabs from './components/Tabs';
 function App() {
   const [activeTab, setActiveTab] = useState('map-tab');
 
-  console.log('Текущая вкладка:', activeTab); // Добавьте это
+  console.log('Текущая вкладка:', activeTab); 
 
   return (
     <div className="app">

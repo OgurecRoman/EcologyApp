@@ -30,15 +30,15 @@ export async function getMyEvents(userId) {
     return user.events;
 };
 
-export async function postEvents(name, description, type, date, address, city, author) {
-    const fullAddress = city ? `${city}, ${address}`.trim() : address;
+export async function postEvents(name, description, type, date, address, author) {
+    // const fullAddress = city ? `${city}, ${address}`.trim() : address;
     const event = await prisma.event.create({
         data: {
             name,
             description,
             type,
             date: new Date(date),
-            address: fullAddress,
+            address: address,
             author
         },
         include: { participants: true }

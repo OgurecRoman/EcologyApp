@@ -28,10 +28,17 @@ export async function getMyEvents(req, res) {
 
 export async function postEvents(req, res) {
     try {
-        const { name, description, type, date, address, author } = req.body;
+        const name = req.body.name;
+        const description = req.body.description;
+        const type = req.body.type;
+        const date = req.body.date;
+        const address = req.body.address;
+        const author = req.body.author;
         if (!name || !description || !type || !date || !address || !author) {
             return res.status(400).json({ error: 'Все поля обязательны' });
         }
+        console.log("BODY");
+        console.log(req.body);
         const event = await eventsService.postEvents(name, description, type, date, 
             address, author);
 

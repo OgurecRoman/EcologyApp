@@ -7,7 +7,6 @@ const AddEventTab = ({ setActiveTab }) => {
     type: 'SUBBOTNIK',
     date: '',
     address: '',
-    city: '',
     author: '',
   });
 
@@ -37,7 +36,6 @@ const AddEventTab = ({ setActiveTab }) => {
         type: 'SUBBOTNIK',
         date: '',
         address: '',
-        city: '',
         author: '',
       });
       setActiveTab('map-tab'); // Переключаемся на карту
@@ -98,15 +96,6 @@ const AddEventTab = ({ setActiveTab }) => {
           type="text"
           name="address"
           value={formData.address}
-          onChange={handleChange}
-          required
-        />
-
-        <label>Город:</label>
-        <input
-          type="text"
-          name="city"
-          value={formData.city}
           onChange={handleChange}
           required
         />
