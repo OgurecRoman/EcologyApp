@@ -21,6 +21,11 @@ async function startServer(){
             credentials: true
         }));
 
+        app.use(cors({
+            origin: '*',
+            credentials: true
+        }));
+
         app.use('/', router);
 
         // app.get('/', (req, res) => {
