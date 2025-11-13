@@ -1,12 +1,12 @@
 "use client"
 
-import Layout from "../src/components/Layout/Layout"
+import ClientLayout from "../src/components/ClientLayout/ClientLayout";
 import MapView from "../src/views/MapView/MapView"
 
 export default function Home() {
   return (
-    <Layout>
+    <ClientLayout>
       <MapView />
-    </Layout>
+    </ClientLayout>
   )
 }
