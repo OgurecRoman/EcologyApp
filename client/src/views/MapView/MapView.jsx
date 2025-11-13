@@ -21,6 +21,8 @@ export default function MapView() {
   const { events, loading } = useEvents(filters)
   const { selectedEvent, setSelectedEvent } = useSelectedEvent()
 
+  console.log("ну в мэп я попал")
+
   useEffect(() => {
     const geocodeEvents = async () => {
       const coordinates = {}

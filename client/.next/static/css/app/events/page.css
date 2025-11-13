@@ -1,0 +1,550 @@
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!./src/components/BottomNavigation/BottomNavigation.css ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************/
+.bottom-navigation {
+  display: flex;
+  gap: 8px;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  position: -webkit-sticky;
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  padding: 8px;
+}
+
+/* стили для ToolButton в навигации */
+.bottom-navigation button {
+  flex: 1 1;
+  min-height: 56px;
+}
+
+.bottom-navigation button.active {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.nav-button {
+  flex: 1 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 64px;
+}
+
+.nav-button:hover {
+  background: #f5f5f5;
+}
+
+.nav-button.active {
+  background: #e8f5e9;
+}
+
+.nav-icon {
+  font-size: 24px;
+  transition: transform 0.2s;
+}
+
+.nav-button.active .nav-icon {
+  transform: scale(1.1);
+}
+
+.nav-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #616161;
+  transition: color 0.2s;
+}
+
+.nav-button.active .nav-label {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+@media (min-width: 769px) {
+  .bottom-navigation {
+    padding: 12px;
+  }
+
+  .bottom-navigation button {
+    min-height: 64px;
+  }
+
+  .nav-button {
+    padding: 16px 12px;
+  }
+
+  .nav-icon {
+    font-size: 28px;
+  }
+
+  .nav-label {
+    font-size: 13px;
+  }
+}
+
+/*!******************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!./src/components/Layout/Layout.css ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************/
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.layout-content {
+  flex: 1 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/*!************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!./src/components/EventCard/EventCard.css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************/
+.event-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s;
+}
+
+.event-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.event-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #212121;
+  margin: 0;
+  flex: 1 1;
+}
+
+.event-card-type {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.event-card-body {
+  margin-bottom: 16px;
+}
+
+.event-card-description {
+  color: #616161;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+
+.event-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.event-card-info-item {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.event-card-label {
+  color: #757575;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.event-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.event-card-btn {
+  flex: 1 1;
+  min-width: 140px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.event-card-btn-primary {
+  background: #4caf50;
+  color: white;
+}
+
+.event-card-btn-primary:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.event-card-btn-primary:disabled {
+  background: #a5d6a7;
+  cursor: not-allowed;
+}
+
+.event-card-btn-secondary {
+  background: white;
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+.event-card-btn-secondary:hover {
+  background: #f1f8f4;
+}
+
+.event-card-joined {
+  flex: 1 1;
+  min-width: 140px;
+  padding: 10px 16px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .event-card-actions {
+    flex-direction: column;
+  }
+
+  .event-card-btn,
+  .event-card-joined {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+/*!************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!./src/components/EventForm/EventForm.css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************/
+.event-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.event-form-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.event-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  background: white;
+  border-radius: 12px 12px 0 0;
+  z-index: 10;
+}
+
+.event-form-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #212121;
+  margin: 0;
+}
+
+.event-form-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  font-size: 32px;
+  line-height: 32px;
+  color: #757575;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.event-form-close:hover {
+  background: #f5f5f5;
+  color: #212121;
+}
+
+.event-form {
+  padding: 24px;
+}
+
+.event-form-field {
+  margin-bottom: 20px;
+}
+
+.event-form-field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #424242;
+  margin-bottom: 8px;
+}
+
+.event-form-field input,
+.event-form-field textarea,
+.event-form-field select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.event-form-field input:focus,
+.event-form-field textarea:focus,
+.event-form-field select:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.event-form-field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.event-form-error {
+  display: block;
+  color: #c62828;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.event-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.event-form-btn-cancel,
+.event-form-btn-submit {
+  flex: 1 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.event-form-btn-cancel {
+  background: white;
+  color: #616161;
+  border: 1px solid #e0e0e0;
+}
+
+.event-form-btn-cancel:hover {
+  background: #f5f5f5;
+}
+
+.event-form-btn-submit {
+  background: #4caf50;
+  color: white;
+}
+
+.event-form-btn-submit:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.event-form-btn-submit:disabled {
+  background: #a5d6a7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .event-form-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .event-form-modal {
+    max-height: 95vh;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .event-form {
+    padding: 16px;
+  }
+}
+
+/*!*********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!./src/views/EventsView/EventsView.css ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************/
+.events-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f5f5f5;
+}
+
+.events-header {
+  background: white;
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.events-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #212121;
+  margin: 0;
+}
+
+.events-add-btn {
+  padding: 10px 20px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.events-add-btn:hover {
+  background: #45a049;
+}
+
+.events-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 16px 16px 0;
+  background: white;
+}
+
+.events-tab {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #616161;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.events-tab:hover {
+  color: #212121;
+}
+
+.events-tab.active {
+  color: #4caf50;
+  border-bottom-color: #4caf50;
+}
+
+.events-loading,
+.events-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 48px 16px;
+  color: #616161;
+  font-size: 16px;
+  gap: 12px;
+}
+
+.events-list {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .events-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .events-title {
+    font-size: 20px;
+  }
+
+  .events-add-btn {
+    width: 100%;
+  }
+
+  .events-tabs {
+    padding: 12px 12px 0;
+  }
+
+  .events-tab {
+    flex: 1 1;
+    text-align: center;
+  }
+
+  .events-list {
+    padding: 12px;
+  }
+}
+

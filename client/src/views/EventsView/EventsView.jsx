@@ -20,9 +20,11 @@ export default function EventsView() {
   const webApp = getWebApp();
   if (webApp){
       console.log("Я получил виндовс")
-      console.log(data.user.first_name)
       const data = window.WebApp.initDataUnsafe;
-      user = data.user.id
+      if (data.user){
+        console.log(data.user.first_name)
+        user = data.user.id
+      }
   } else { console.log("Я ничево неполучил") }
 
   const [activeTab, setActiveTab] = useState("all")
