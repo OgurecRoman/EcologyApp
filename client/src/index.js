@@ -1,14 +1,13 @@
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { MaxUI } from '@maxhub/max-ui';
 import '@maxhub/max-ui/dist/styles.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import App from './App.jsx';
 
-ReactDOM.render(
-  <MaxUI>
+
+const Root = () => (
+    <MaxUI>
         <App />
-  </MaxUI>,
-  document.getElementById('root')
-);
+    </MaxUI>
+)
 
-reportWebVitals();
+createRoot(document.getElementById('root')).render(<Root />);
