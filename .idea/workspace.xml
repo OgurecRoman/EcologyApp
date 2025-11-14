@@ -5,21 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="prikinte ya sdelala instagramm a chevo vi dobilis">
-      <change afterPath="$PROJECT_DIR$/server/utils/cron.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/bot.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/bot.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/controllers/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/event.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/routes/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/event.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/event.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,6 +135,7 @@
       <workItem from="1762956632576" duration="11789000" />
       <workItem from="1763016176432" duration="1828000" />
       <workItem from="1763018560892" duration="20945000" />
+      <workItem from="1763147920540" duration="79000" />
     </task>
     <task id="LOCAL-00001" summary="Попытка заставить его присылать уведомления, пока присылает только по команде /check_new, а сам не хочет">
       <option name="closed" value="true" />
