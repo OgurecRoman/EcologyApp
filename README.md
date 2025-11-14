@@ -38,8 +38,17 @@
 
 ## ⚙️ Установка и запуск
 ```bash
+# 1. Клонируем репозиторий
 git clone https://github.com/OgurecRoman/EcologyApp.git
+
+# 2. Переходим в папку с ботом
 cd EcologyApp/app
+
+# 3. Собираем Docker-образ
 docker build -t ecology-bot .
+
+# 4. Запускаем контейнер с ботом (подставьте свои переменные в .env)
 docker run -d --env-file .env --name ecology-bot ecology-bot
+
+# 5. Просматриваем логи контейнера в реальном времени
 docker logs -f ecology-bot
