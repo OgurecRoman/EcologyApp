@@ -15,7 +15,7 @@ const MapTab = () => {
 
   const BASE_URL = process.env.REACT_APP_URL || 'https://ecology-app-test.vercel.app'
 
-  // console.log(events);
+  console.log(events);
 
   // Загрузка Yandex Maps API
   useEffect(() => {
@@ -102,7 +102,7 @@ const MapTab = () => {
     } catch (err) {
       console.error('Ошибка загрузки событий:', err);
     }
-  }, [ymaps]); // Зависимость: ymaps, т.к. используется внутри
+  }, [ymaps, BASE_URL]); // Зависимость: ymaps, т.к. используется внутри
 
   // Инициализация карты
   useEffect(() => {
@@ -150,15 +150,6 @@ const MapTab = () => {
     setSelectedFilters([]);
     // Загружаем события для текущего города
     loadEventMarkers(userCity, []);
-  };
-
-  const handleTypeChange = (e) => {
-    const value = e.target.value;
-    if (e.target.checked) {
-      setSelectedFilters(prev => [...prev, value]);
-    } else {
-      setSelectedFilters(prev => prev.filter(t => t !== value));
-    }
   };
 
   return (
