@@ -5,6 +5,7 @@ const router = Router();
 
 router.get('/', userController.getUser);
 router.patch('/', userController.patchUser);
+router.get('/top', userController.getTopUsers);
 
 export default router;
 

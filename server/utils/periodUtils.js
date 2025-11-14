@@ -1,11 +1,20 @@
 // utils/periodUtils.js
 
 // Утилита для работы с периодами рейтинга
+// export function getCurrentPeriod() {
+//     // пока для тестов период = минута
+//     const now = new Date();
+//     return {
+//         period: `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}-${now.getMinutes()}`,
+//         timestamp: now
+//     };
+// }
+
 export function getCurrentPeriod() {
-    // пока для тестов период = минута
+    // Для продакшена: период = месяц
     const now = new Date();
     return {
-        period: `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}-${now.getMinutes()}`,
+        period: `${now.getFullYear()}-${now.getMonth()}`, // Год и месяц
         timestamp: now
     };
 }
@@ -16,13 +25,13 @@ export function shouldResetRating(lastActivity) {
     const now = new Date();
     const lastActivityDate = new Date(lastActivity);
 
-    // Для теста: сбрасываем рейтинг, если прошла минута
-    const diffInMinutes = (now - lastActivityDate) / (1000 * 60);
-    return diffInMinutes > 1;
+    // Для продакшена: сбрасываем рейтинг, если сменился месяц
+    return now.getMonth() !== lastActivityDate.getMonth() ||
+        now.getFullYear() !== lastActivityDate.getFullYear();
 
-    // (месяц):
-    // return now.getMonth() !== lastActivityDate.getMonth() ||
-    //        now.getFullYear() !== lastActivityDate.getFullYear();
+    // Старый код для теста (минута):
+    // const diffInMinutes = (now - lastActivityDate) / (1000 * 60);
+    // return diffInMinutes > 1;
 }
 
 export function updateUserActivity(user) {
