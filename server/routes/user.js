@@ -1,11 +1,17 @@
+// routes/user.js
 import { Router } from 'express';
 import * as userController from '../controllers/user.js';
 
 const router = Router();
 
 router.get('/', userController.getUser);
+router.post('/', userController.createUser);
 router.patch('/', userController.patchUser);
+<<<<<<< HEAD
 router.get('/top', userController.getTopUsers);
+=======
+router.get('/stats', userController.getUserStats);
+>>>>>>> b5858486fdeb55e420cbc188bc05e3eb5c2d8b58
 
 export default router;
 

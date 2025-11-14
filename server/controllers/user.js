@@ -1,6 +1,6 @@
+// controllers/user.js
 import * as userService from '../services/user.js';
 
-// /user?id=&name=
 export async function getUser(req, res) {
     try {
         const id = req.query.id ? parseInt(req.query.id) : null;
@@ -24,6 +24,20 @@ export async function getUser(req, res) {
     }
 };
 
+export async function createUser(req, res) {
+    try {
+        const { id, username } = req.body;
+        if (!id || !username) {
+            return res.status(400).json({ error: 'ID и username обязательны' });
+        }
+        const user = await userService.createUser(id, username);
+        res.status(201).json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Ошибка при создании пользователя' });
+    }
+};
+
 export async function patchUser(req, res) {
     try {
         const eventsId = req.body.eventsId;
@@ -34,6 +48,7 @@ export async function patchUser(req, res) {
         console.error(error);
         res.status(500).json({ error: 'Ошибка при обновлении пользователя' });
     }
+<<<<<<< HEAD
 }
 
 export async function getTopUsers(req, res) {
@@ -50,3 +65,20 @@ export async function getTopUsers(req, res) {
         res.status(500).json({ error: 'Ошибка при получении топа пользователей' });
     }
 }
+=======
+};
+
+export async function getUserStats(req, res) {
+    try {
+        const userId = parseInt(req.query.userId);
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID обязателен' });
+        }
+        const stats = await userService.getUserStats(userId);
+        res.json(stats);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Ошибка при получении статистики пользователя' });
+    }
+};
+>>>>>>> b5858486fdeb55e420cbc188bc05e3eb5c2d8b58
