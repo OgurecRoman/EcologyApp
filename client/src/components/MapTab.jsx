@@ -1,5 +1,5 @@
 // MapTab.jsx
-import { Button, Flex, Grid, Input, Panel, Switch, Typography } from '@maxhub/max-ui';
+import { Button, Grid, Input, Panel, Switch, Typography } from '@maxhub/max-ui';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { EventType, EventTypeLabels } from '../types/event'
 
@@ -153,39 +153,33 @@ const MapTab = () => {
   };
 
   return (
-  <Flex direction="column">
-    <Typography.Display style={{textAlign: 'center', width: '100%', marginBottom: '10px' }} >Карта событий</Typography.Display>
-    <div>
+    <div style={{width: '100%'}}>
       {!ymaps ? (
         <div>Загрузка карты...</div>
       ) : (
         <>
-        <div className="filter-group">
-              <Input
-                type="text"
-                compact="true"
-                id="filterCity"
-                value={filterCity}
-                onChange={(e) => setFilterCity(e.target.value)}
-                placeholder="Ведите город: Москва, Санкт-Петербург"
-              />
-            </div>
-        <Panel mode="primary">
-            <div id="map" ref={mapRef} style={{ width: '100%', height: '500px', marginBottom: '20px' }}></div>
-        </Panel>
-          <div id="filters">
-            
-            <div className="filter-group">
-              <Button onClick={() => setIsOpen(!isOpen)} className="filters-toggle">
+          <Typography.Display style={{textAlign: 'center', width: '100%', marginBottom: '10px' }} >Карта событий</Typography.Display>
+          <Input className='input'
+            type="text"
+            compact="true"
+            value={filterCity}
+            onChange={(e) => setFilterCity(e.target.value)}
+            placeholder="Ведите город: Москва, Санкт-Петербург"
+          />
+
+        <div mode="primary" id="map" ref={mapRef} style={{ width: '100%', marginBottom: '20px' }} />
+          <Panel id="window">
+            <Panel class="filter-group" style={{width: '100%'}}>
+              <Button style={{width: '100%'}} onClick={() => setIsOpen(!isOpen)} className="filters-toggle">
                 <span><Typography.Action>Фильтры</Typography.Action></span>
                 {selectedFilters.length > 0 && <span>{selectedFilters.length}</span>}
                 <span className={`arrow ${isOpen ? "open" : ""}`}>▼</span>
               </Button>
 
               {isOpen && (
-                <div className="filters-dropdown">
+                <Panel style={{width: '100%'}} className="filters-dropdown">
 
-                  <div className="filters-list">
+                  <Panel style={{width: '100%'}} className="filters-list">
                     <Grid
                       cols={2}
                       gapX={20}
@@ -206,20 +200,19 @@ const MapTab = () => {
                       </label>
                     ))}
                     </Grid>
-                  </div>
-                </div>
+                  </Panel>
+                </Panel>
               )}
-            </div>
+            </Panel>
 
-            <div className="filter-buttons">
+            <Panel className="filter-buttons">
               <Button onClick={handleClearFilters}>Сбросить</Button>
-            </div>
-          </div>
+            </Panel>
+          </Panel>
           
         </>
       )}
     </div>
-  </Flex>
   );
 };
 

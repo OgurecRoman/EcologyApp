@@ -17,7 +17,7 @@ function App() {
   const renderCurrentTab = () => {
     switch (activeTab) {
       case 'tab1':
-        return <MapTab />;
+        return <MapTab id="window" />;
       case 'tab2':
         return <EventTab />;
       case 'tab3':
@@ -27,7 +27,7 @@ function App() {
     }
   };
 
-  return <Flex direction="column" gap={16} style={{height: '100%'}}>
+  return <Flex direction="column" gap={16} style={{width: '100%'}}>
       {renderCurrentTab()}
 
       <Flex className='navigation' direction="row" gap={8}>
