@@ -163,6 +163,7 @@ const MapTab = () => {
         <div className="filter-group">
               <Input
                 type="text"
+                compact="true"
                 id="filterCity"
                 value={filterCity}
                 onChange={(e) => setFilterCity(e.target.value)}

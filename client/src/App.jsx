@@ -27,10 +27,10 @@ function App() {
     }
   };
 
-  return <Flex direction="column" gap={16}>
+  return <Flex direction="column" gap={16} style={{height: '100%'}}>
       {renderCurrentTab()}
 
-      <Flex direction="row" gap={8} style={{width: '100%'}}>
+      <Flex className='navigation' direction="row" gap={8}>
         <ToolButton
           icon={ <img src={mapIcon} style={{ width: '40px', height: '40px' }} alt='' /> }
           onClick={() => handleTabClick('tab1')}

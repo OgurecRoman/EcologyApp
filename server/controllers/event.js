@@ -129,21 +129,6 @@ export async function joinEvent(req, res) {
     }
 };
 
-export async function joinEvent(req, res) {
-    try {
-        const userId = req.body.userId;
-        const eventId = req.body.eventId;
-        if (!userId || !eventId) {
-            return res.status(400).json({ error: 'Все поля обязательны' });
-        }
-        const user = await eventsService.joinEvent(userId, eventId);
-        res.json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Ошибка при подписке на событие' });
-    }
-};
-
 // Добавляем функцию для определения баллов
 function getRatingPointsByEventType(eventType) {
     const ratingPoints = {

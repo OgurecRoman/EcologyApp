@@ -165,27 +165,6 @@ export async function joinEvent(userId, eventId) {
     }
 };
 
-export async function joinEvent(userId, eventId) {
-    const updatedEvent = await prisma.event.update({
-      where: {
-        id: eventId,
-      },
-      data: {
-        participants: {
-          connect: {
-            id: userId,
-          },
-        },
-      },
-      include: {
-        participants: true,
-      },
-    });
-
-    console.log(`Пользователь (ID: ${userId}) успешно присоединился к событию: ${updatedEvent.name}`);
-    return updatedEvent;
-};
-
 export async function patchEvents(id, data) {
     return await prisma.event.update({
         where: { id },
