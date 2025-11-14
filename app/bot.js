@@ -4,6 +4,9 @@ import { addSubscriber, removeSubscriber, sendNewEventNotification, getSubscribe
 
 dotenv.config();
 
+// Флаг демо-режима (временно true, пока API не исправлено)
+const DEMO_MODE = false;
+
 const token = process.env.BOT_TOKEN;
 if (!token) {
     console.error('❌ ОШИБКА: BOT_TOKEN не найден');
@@ -13,8 +16,8 @@ if (!token) {
 console.log('✅ Токен загружен');
 const bot = new Bot(token);
 
-const ECOLOGY_API_URL = 'https://ecology-app-test.vercel.app/events';
-
+//const ECOLOGY_API_URL = 'https://ecology-app-test.vercel.app/events';
+const ECOLOGY_API_URL = "http://localhost:3000/events"
 const EVENT_TYPES = {
     SUBBOTNIK: '🌿 Субботник',
     PAPER_COLLECTION: '📄 Сбор макулатуры',
@@ -96,43 +99,6 @@ async function getEventsFromAPI() {
     }
 }
 
-// Функция для сравнения событий
-function findNewEvents(currentEvents, previousEvents) {
-    if (!Array.isArray(currentEvents) || !Array.isArray(previousEvents)) {
-        return [];
-    }
-
-    // Если это первая проверка, нет новых событий
-    if (previousEvents.length === 0) {
-        console.log('📝 Первая проверка, загружаем события без уведомлений');
-        return [];
-    }
-
-    const newEvents = [];
-
-    for (const currentEvent of currentEvents) {
-        // Ищем событие с таким же ID
-        const existingById = previousEvents.find(prev =>
-            prev.id && currentEvent.id && prev.id === currentEvent.id
-        );
-
-        // Или ищем по названию и дате (на случай если ID нет или отличается)
-        const existingByNameAndDate = previousEvents.find(prev =>
-            prev.name === currentEvent.name &&
-            prev.date === currentEvent.date &&
-            prev.author === currentEvent.author
-        );
-
-        // Если события нет в предыдущем списке - оно новое
-        if (!existingById && !existingByNameAndDate) {
-            newEvents.push(currentEvent);
-            console.log(`🆕 Обнаружено новое событие: "${currentEvent.name}"`);
-        }
-    }
-
-    return newEvents;
-}
-
 // Улучшенная функция для проверки новых событий
 async function checkForNewEvents() {
     try {
@@ -185,42 +151,54 @@ async function checkForNewEvents() {
     }
 }
 
-// Улучшенная функция для отправки уведомлений о новых событиях
-async function notifyAboutNewEvents() {
+// Обработчик для просмотра профиля другого пользователя
+async function handleUserProfile(ctx, userId, targetUserId, userName) {
     try {
-        if (!isMonitoringActive) {
-            console.log('⏸️ Мониторинг не активен, пропускаем проверку');
-            return;
-        }
+        const userResponse = await fetch(`https://ecology-app-test.vercel.app/user?id=${targetUserId}`);
+        const targetUser = await userResponse.json();
 
-        console.log('🔄 Запуск автоматической проверки новых событий...');
-        const newEvents = await checkForNewEvents();
+        const postsResponse = await fetch(`https://ecology-app-test.vercel.app/posts/user?userId=${targetUserId}`);
+        const userPosts = await postsResponse.json();
 
-        if (newEvents.length === 0) {
-            console.log('ℹ️ Новых событий нет');
-            return;
-        }
+        const followersResponse = await fetch(`https://ecology-app-test.vercel.app/follow/followers?userId=${targetUserId}`);
+        const followers = await followersResponse.json();
 
-        console.log(`📢 Найдено ${newEvents.length} новых событий для уведомления`);
+        const followingResponse = await fetch(`https://ecology-app-test.vercel.app/follow/following?userId=${targetUserId}`);
+        const following = await followingResponse.json();
 
-        // Отправляем уведомления для каждого нового события
-        for (const event of newEvents) {
-            console.log(`📨 Отправка уведомления о событии: "${event.name}"`);
-            try {
-                await sendNewEventNotification(event);
-                console.log(`✅ Уведомление о "${event.name}" отправлено успешно`);
-            } catch (error) {
-                console.error(`❌ Ошибка отправки уведомления о "${event.name}":`, error);
-            }
+        // Проверяем, подписан ли текущий пользователь
+        const isFollowing = followers.some(follower => follower.id === userId);
 
-            // Пауза между отправками
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+        const profileKeyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.callback('📖 Посмотреть посты', `view_user_posts_${targetUserId}`, { intent: 'default' })
+            ],
+            [
+                Keyboard.button.callback(
+                    isFollowing ? '❌ Отписаться' : '✅ Подписаться',
+                    isFollowing ? `unfollow_${targetUserId}` : `follow_${targetUserId}`,
+                    { intent: isFollowing ? 'negative' : 'positive' }
+                )
+            ],
+            [
+                Keyboard.button.callback('⬅️ Назад к списку', 'other_users', { intent: 'default' })
+            ]
+        ]);
 
-        console.log('✅ Автоматическая отправка уведомлений завершена');
+        const profileMessage = `👤 Профиль: ${targetUser.username}\n\n` +
+            `⭐ Рейтинг: ${targetUser.rating || 0}\n` +
+            `📄 Постов: ${userPosts.length}\n` +
+            `👥 Подписчиков: ${followers.length}\n` +
+            `📋 Подписок: ${following.length}\n\n` +
+            `Статус: ${targetUser.status || "Эко-активист"}`;
+
+        await ctx.reply(profileMessage, {
+            attachments: [profileKeyboard]
+        });
 
     } catch (error) {
-        console.error('❌ Критическая ошибка при отправке уведомлений о новых событиях:', error);
+        console.error('❌ Ошибка при загрузке профиля пользователя:', error);
+        await ctx.reply('❌ Ошибка при загрузке профиля пользователя');
     }
 }
 
@@ -247,49 +225,7 @@ bot.command('force_refresh', async (ctx) => {
     }
 });
 
-// Запускаем периодическую проверку новых событий
-function startEventMonitoring() {
-    const CHECK_INTERVAL = 60 * 1000; // 1 минута
-
-    console.log(`🕐 Запуск мониторинга событий (интервал: ${CHECK_INTERVAL/1000} секунд)`);
-
-    // Включаем мониторинг по умолчанию
-    isMonitoringActive = true;
-
-    // Первоначальная загрузка событий
-    getEventsFromAPI().then(events => {
-        lastEvents = events;
-        console.log(`📝 Загружено ${events.length} событий для мониторинга`);
-        console.log('✅ Мониторинг активирован по умолчанию');
-
-        // Логируем первые несколько событий для отладки
-        if (events.length > 0) {
-            console.log('📋 Первые 3 события для мониторинга:');
-            events.slice(0, 3).forEach((event, index) => {
-                console.log(`  ${index + 1}. ${event.name} (${event.date})`);
-            });
-        }
-    }).catch(error => {
-        console.error('❌ Ошибка при первоначальной загрузке событий:', error);
-    });
-
-    // Периодическая проверка
-    const intervalId = setInterval(() => {
-        if (isMonitoringActive) {
-            console.log(`🔄 Автоматическая проверка (интервал ${CHECK_INTERVAL/1000}с)`);
-            notifyAboutNewEvents();
-        } else {
-            console.log('⏸️ Мониторинг отключен, пропускаем проверку');
-        }
-    }, CHECK_INTERVAL);
-
-    console.log('🔔 Автоматические уведомления включены по умолчанию');
-
-    // Сохраняем ID интервала для возможной остановки
-    monitoringIntervalId = intervalId;
-}
-
-// Команда для принудительной проверки новых событий (для тестирования)
+// Команда для принудительной проверки новых событий
 bot.command('check_new', async (ctx) => {
     try {
         await ctx.reply('🔍 Проверяю новые события...');
@@ -312,96 +248,6 @@ bot.command('check_new', async (ctx) => {
     }
 });
 
-// Команда для тестирования API
-bot.command('test_api', async (ctx) => {
-    try {
-        await ctx.reply('🧪 Тестирую подключение к API...');
-
-        console.log('🧪 Тестирование API...');
-        const events = await getEventsFromAPI();
-
-        if (events.length === 0) {
-            await ctx.reply('❌ Не удалось получить события с API. Проверьте URL и доступность сервера.');
-        } else {
-            await ctx.reply(`✅ API работает! Получено ${events.length} событий:\n\n` +
-                events.map(event => `• ${event.name}`).join('\n'));
-        }
-    } catch (error) {
-        console.error('❌ Ошибка тестирования API:', error);
-        await ctx.reply('❌ Ошибка при тестировании API');
-    }
-});
-
-// Тестовая функция для проверки автоматических уведомлений
-let testIntervalId = null;
-
-function startTestNotifications() {
-    let counter = 1;
-
-    console.log('🧪 Запуск тестовых уведомлений каждые 10 секунд');
-
-    testIntervalId = setInterval(async () => {
-        try {
-            const testEvent = {
-                name: `Тестовое событие #${counter}`,
-                description: `Это автоматическое тестовое уведомление #${counter}`,
-                type: "SUBBOTNIK",
-                date: new Date().toISOString(),
-                address: "Тестовый адрес",
-                author: "Авто-тест"
-            };
-
-            console.log(`🧪 Отправка тестового уведомления #${counter}`);
-            const results = await sendNewEventNotification(testEvent);
-            console.log(`🧪 Тест #${counter} завершен. Успешно: ${results.filter(r => r.status === 'success').length}`);
-
-            counter++;
-
-            // Останавливаем после 5 тестов
-            if (counter > 5) {
-                stopTestNotifications();
-                console.log('🧪 Тестирование завершено (5 уведомлений отправлено)');
-            }
-        } catch (error) {
-            console.error('❌ Ошибка в тестовом уведомлении:', error);
-        }
-    }, 10000); // 10 секунд
-}
-
-function stopTestNotifications() {
-    if (testIntervalId) {
-        clearInterval(testIntervalId);
-        testIntervalId = null;
-        console.log('🧪 Тестовые уведомления остановлены');
-    }
-}
-// Команда для запуска тестовых уведомлений
-bot.command('test_auto', async (ctx) => {
-    if (testIntervalId) {
-        await ctx.reply('⚠️ Тестовые уведомления уже запущены');
-        return;
-    }
-
-    await ctx.reply('🧪 Запускаю тестовые уведомления...\n\nБот будет отправлять тестовые события каждые 10 секунд (всего 5 раз)');
-    startTestNotifications();
-});
-
-// Команда для остановки тестовых уведомлений
-bot.command('test_stop', async (ctx) => {
-    if (!testIntervalId) {
-        await ctx.reply('ℹ️ Тестовые уведомления не запущены');
-        return;
-    }
-
-    stopTestNotifications();
-    await ctx.reply('✅ Тестовые уведомления остановлены');
-});
-
-// Команда для проверки статуса теста
-bot.command('test_status', async (ctx) => {
-    const status = testIntervalId ? '✅ Активен' : '❌ Неактивен';
-    await ctx.reply(`🧪 Статус тестовых уведомлений: ${status}`);
-});
 
 
 // Команда для просмотра статуса мониторинга
@@ -410,13 +256,12 @@ bot.command('monitor_status', async (ctx) => {
         `${i + 1}. ${e.name} (${new Date(e.date).toLocaleDateString('ru-RU')})`
     ).join('\n') || 'Нет событий';
 
-    const statusMessage = `📊 **Статус мониторинга событий**\n\n` +
+    const statusMessage = `📊 Статус мониторинга событий\n\n` +
         `🔍 Последняя проверка: ${lastCheckTime.toLocaleString('ru-RU')}\n` +
         `📝 Отслеживается событий: ${lastEvents.length}\n` +
         `👥 Подписчиков: ${getSubscribersCount()}\n` +
-        `🔔 Автоматические уведомления: ${isMonitoringActive ? '✅ ВКЛ' : '❌ ВЫКЛ'}\n\n` +
-        `📋 Примеры отслеживаемых событий:\n${eventExamples}\n\n` +
-        `_Бот проверяет новые события каждую минуту_`;
+        `📋 Отслеживаемые события:\n${eventExamples}\n\n` +
+        `🌱 Бот проверяет новые события каждую минуту автоматически!`;
 
     await ctx.reply(statusMessage);
 });
@@ -440,29 +285,6 @@ bot.command('reset_events', async (ctx) => {
     await ctx.reply(`🔄 Кэш событий сброшен! Было: ${oldCount}, сейчас: ${events.length}`);
 });
 
-// Тестовая команда для проверки уведомлений
-bot.command('test_notify', async (ctx) => {
-    try {
-        const testEvent = {
-            name: "Тестовое событие " + new Date().toLocaleTimeString(),
-            description: "Это тестовое уведомление от бота",
-            type: "SUBBOTNIK",
-            date: new Date().toISOString(),
-            address: "Тестовый адрес",
-            author: "Бот"
-        };
-
-        const results = await sendNewEventNotification(testEvent);
-        ctx.reply(`✅ Тестовое уведомление отправлено! Успешно: ${results.filter(r => r.status === 'success').length}`);
-    } catch (error) {
-        console.error('❌ Ошибка тестового уведомления:', error);
-        ctx.reply('❌ Ошибка при отправке тестового уведомления');
-    }
-});
-
-// Остальной код бота (start, help, events и т.д.) остается без изменений
-// ... [остальной код из предыдущего примера] ...
-
 // Команда /start
 bot.command('start', (ctx) => {
     const chatId = ctx.update.message?.recipient?.chat_id;
@@ -470,22 +292,24 @@ bot.command('start', (ctx) => {
 
     addSubscriber(chatId, ctx);
 
+    // Создаем кнопки в том же формате, что и в рабочем примере
     const keyboard = Keyboard.inlineKeyboard([
         [
-            Keyboard.button.link('📅 Запланировать событие', 'https://ecology-app.vercel.app')
+            Keyboard.button.link('📅 Запланировать событие', 'https://max.ru/t211_hakaton_bot?startapp')
+        ],
+        [
+            Keyboard.button.callback('👤 Профиль', 'profile', { intent: 'default' })
         ]
     ]);
 
     ctx.reply(
         `Привет, ${userName}! 👋\n\n` +
         `Я создан для того, чтобы сделать нашу планету чуточку лучше! 🌍\n\n` +
-        `Теперь я буду автоматически уведомлять тебя о новых событиях! 📢\n\n` +
         `Доступные команды:\n` +
         `/events - 📅 Посмотреть все события\n` +
-        `/unsubscribe - 🔕 Отписаться от уведомлений\n` +
-        `/monitor_status - 📊 Статус мониторинга\n` +
-        `/check_new - 🔍 Принудительная проверка\n` +
-        `/test_api - 🧪 Проверить API\n` +
+        `/profile - 👤 Посмотреть свой профиль\n` +
+        `/monitor_status - 📊 Статус просматриваемых событий\n` +
+        `/check_new - 🔍 Узнать о новых событиях\n` +
         `/help - ❓ Помощь по командам\n\n` +
         `Или ты можешь запланировать свое мероприятие прямо сейчас! :0`,
         {
@@ -494,25 +318,507 @@ bot.command('start', (ctx) => {
     );
 });
 
+// Команда /profile
+bot.command('profile', async (ctx) => {
+    const chatId = ctx.update.message?.recipient?.chat_id;
+    const userName = ctx.update.message?.from?.first_name || 'Пользователь';
+
+    // Используем chatId как ID пользователя (или можно получить из вашей системы)
+    const userId = chatId;
+
+    try {
+        // Получаем данные пользователя из API
+        const userResponse = await fetch(`https://ecology-app-test.vercel.app/user?id=${userId}&name=${encodeURIComponent(userName)}`);
+        const user = await userResponse.json();
+
+        const profileKeyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.callback('⭐ Рейтинг', 'show_rating'),
+                Keyboard.button.callback('📋 Подписки', 'show_following')
+            ],
+            [
+                Keyboard.button.callback('👥 Подписчики', 'show_followers')
+            ],
+            [
+                Keyboard.button.callback('⬅️ Назад', 'back_to_main')
+            ]
+        ]);
+
+        let profileMessage = `👤 Профиль: ${userName}\n\n`;
+
+        if (user && user.rating !== undefined) {
+            profileMessage += `⭐ Текущий рейтинг: ${user.rating}\n`;
+            profileMessage += `📅 Создан: ${new Date(user.createdAt).toLocaleDateString('ru-RU')}\n\n`;
+        } else {
+        profileMessage += `✨ Это твой профиль!\n`+
+            `Начните участвовать в событиях для набора рейтинга.\n\n`+
+            `ВАЖНО: Твой рейтинг под угрозой! Обязательно делай добрые дела в течении 30 дней, иначе твой рейтинг обнулится! (🔫🔫🔫)\n\n`;
+    }
+
+
+    profileMessage += `Используй кнопочки для навигации:`;
+
+        await ctx.reply(profileMessage, {
+            attachments: [profileKeyboard]
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка при получении профиля:', error);
+
+        const profileKeyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.callback('⭐ Рейтинг', 'show_rating'),
+                Keyboard.button.callback('📋 Подписки', 'show_following')
+            ],
+            [
+                Keyboard.button.callback('👥 Подписчики', 'show_followers')
+            ],
+            [
+                Keyboard.button.callback('⬅️ Назад', 'back_to_main')
+            ]
+        ]);
+
+        await ctx.reply(
+            `👤 Профиль: ${userName}\n\n` +
+            `⭐ Твой рейтинг появится после участия в событиях!\n\n` +
+            `Выберите действие:`,
+            {
+                attachments: [profileKeyboard]
+            }
+        );
+    }
+});
+
+// Обработчик callback-ов для кнопок профиля
+bot.on('message_callback', async (ctx) => {
+    console.log('📨 Получен callback update:', JSON.stringify(ctx.update, null, 2));
+
+    // Извлекаем данные из callback
+    const callbackData = ctx.update.callback?.payload;
+    const chatId = ctx.update.callback?.user?.user_id;
+    const userName = ctx.update.callback?.user?.first_name || 'Пользователь';
+
+    console.log('🔍 Извлеченные данные:', { callbackData, chatId, userName });
+
+    if (!callbackData) {
+        console.log('❌ Не удалось извлечь callback data');
+        await ctx.reply('❌ Не удалось обработать нажатие кнопки');
+        return;
+    }
+
+    try {
+        switch (callbackData) {
+            case 'profile':
+                await handleProfile(ctx, chatId, userName);
+                break;
+
+            case 'show_rating':
+                await handleShowRating(ctx, chatId, userName);
+                break;
+
+            case 'show_following':
+                await handleShowFollowing(ctx, chatId, userName);
+                break;
+
+            case 'show_followers':
+                await handleShowFollowers(ctx, chatId, userName);
+                break;
+
+            case 'show_top_rating':
+                await handleTopRating(ctx, chatId, userName);
+                break;
+
+            case 'back_to_main':
+                await handleBackToMain(ctx, userName);
+                break;
+
+            default:
+                console.log(`❌ Неизвестный callback: ${callbackData}`);
+                await ctx.reply(`❌ Неизвестная команда: ${callbackData}`);
+        }
+    } catch (error) {
+        console.error('❌ Ошибка в обработчике callback:', error);
+        await ctx.reply('❌ Произошла ошибка при обработке запроса');
+    }
+});
+
+/// Функция для обработки профиля
+async function handleProfile(ctx, userId, userName) {
+    try {
+        const userResponse = await fetch(`https://ecology-app-test.vercel.app/user?id=${userId}&name=${encodeURIComponent(userName)}`);
+        const user = await userResponse.json();
+
+        // Обновленные кнопки профиля - убираем блог, добавляем топ рейтинга
+        const profileKeyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.callback('⭐ Рейтинг', 'show_rating', { intent: 'default' }),
+                Keyboard.button.callback('📋 Подписки', 'show_following', { intent: 'default' })
+            ],
+            [
+                Keyboard.button.callback('👥 Подписчики', 'show_followers', { intent: 'default' }),
+                Keyboard.button.callback('🏆 Топ рейтинга', 'show_top_rating', { intent: 'default' })
+            ],
+            [
+                Keyboard.button.callback('⬅️ Назад', 'back_to_main', { intent: 'default' })
+            ]
+        ]);
+
+        let profileMessage = `👤 Профиль: ${userName}\n\n`;
+
+        if (user && user.rating !== undefined) {
+            profileMessage += `⭐ Текущий рейтинг: ${user.rating}\n`;
+            profileMessage += `📅 Создан: ${new Date(user.createdAt).toLocaleDateString('ru-RU')}\n\n`;
+        } else {
+            profileMessage += `ℹ️ Профиль создан! Начните участвовать в событиях для набора рейтинга.\n\n`;
+        }
+
+        profileMessage += `Выберите действие:`;
+
+        await ctx.reply(profileMessage, {
+            attachments: [profileKeyboard]
+        });
+    } catch (error) {
+        console.error('❌ Ошибка при обработке профиля:', error);
+        await ctx.reply('❌ Ошибка при загрузке профиля');
+    }
+}
+
+// Функция для показа топа пользователей по рейтингу
+async function handleTopRating(ctx, userId, userName) {
+    try {
+        // Получаем всех пользователей (в реальном приложении нужен специальный эндпоинт для топа)
+        // Временно будем использовать существующие данные
+        const response = await fetch(`https://ecology-app-test.vercel.app/user?id=${userId}`);
+        const currentUser = await response.json();
+
+        // В реальном приложении здесь должен быть запрос к эндпоинту /top-users
+        // Пока используем демо-данные для топа
+        const topUsers = [
+            { id: 1, username: "Эко-лидер", rating: 150, position: 1 },
+            { id: 2, username: "Зеленый воин", rating: 120, position: 2 },
+            { id: 3, username: "Природозащитник", rating: 95, position: 3 },
+            { id: 4, username: "Эко-активист", rating: 80, position: 4 },
+            { id: 5, username: "Чистая планета", rating: 65, position: 5 },
+            { id: 6, username: "Зеленый патруль", rating: 50, position: 6 },
+            { id: 7, username: "Эко-новатор", rating: 45, position: 7 },
+            { id: 8, username: "Защитник природы", rating: 35, position: 8 },
+            { id: 9, username: "Эко-энтузиаст", rating: 25, position: 9 },
+            { id: 10, username: "Начинающий эколог", rating: 15, position: 10 }
+        ];
+
+        // Находим позицию текущего пользователя в рейтинге
+        const currentUserPosition = topUsers.findIndex(user => user.id === userId) + 1;
+        const currentUserInTop = currentUserPosition > 0 && currentUserPosition <= 10;
+
+        let message = `🏆 Топ-10 пользователей по рейтингу:\n\n`;
+
+        topUsers.forEach((user, index) => {
+            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+            const isCurrentUser = user.id === userId;
+            const userPrefix = isCurrentUser ? '👉 ' : '';
+
+            message += `${userPrefix}${medal} ${user.username}\n`;
+            message += `   ⭐ Рейтинг: ${user.rating}\n`;
+
+            if (index < topUsers.length - 1) {
+                message += '\n';
+            }
+        });
+
+        // Добавляем информацию о позиции текущего пользователя
+        if (!currentUserInTop && currentUser.rating > 0) {
+            message += `\n────────────────\n\n`;
+            message += `📊 Ваша позиция: ${currentUserPosition || 'не в топ-10'}\n`;
+            message += `⭐ Ваш рейтинг: ${currentUser.rating}\n\n`;
+            message += `Продолжайте участвовать в событиях, чтобы попасть в топ!`;
+        } else if (currentUserInTop) {
+            message += `\n────────────────\n\n`;
+            message += `🎉 Вы в топе! Поздравляем!`;
+        } else {
+            message += `\n────────────────\n\n`;
+            message += `💫 Участвуйте в событиях, чтобы поднять свой рейтинг и попасть в топ!`;
+        }
+
+        const backKeyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.callback('⭐ Мой рейтинг', 'show_rating', { intent: 'default' })
+            ],
+            [
+                Keyboard.button.callback('⬅️ Назад к профилю', 'profile', { intent: 'default' })
+            ]
+        ]);
+
+        await ctx.reply(message, {
+            attachments: [backKeyboard]
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка при загрузке топа рейтинга:', error);
+
+        // Fallback сообщение
+        const fallbackMessage = `🏆 Топ пользователей по рейтингу:\n\n` +
+            `🥇 Эко-лидер - 150⭐\n` +
+            `🥈 Зеленый воин - 120⭐\n` +
+            `🥉 Природозащитник - 95⭐\n` +
+            `4. Эко-активист - 80⭐\n` +
+            `5. Чистая планета - 65⭐\n\n` +
+            `💫 Участвуйте в событиях, чтобы поднять свой рейтинг!`;
+
+        const backKeyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.callback('⬅️ Назад к профилю', 'profile', { intent: 'default' })
+            ]
+        ]);
+
+        await ctx.reply(fallbackMessage, {
+            attachments: [backKeyboard]
+        });
+    }
+}
+
+// Тестовая команда для проверки API
+bot.command('test_api', async (ctx) => {
+    try {
+        const userId = ctx.update.message?.recipient?.chat_id;
+
+        const endpoints = [
+            'https://ecology-app-test.vercel.app/posts',
+            'https://ecology-app-test.vercel.app/posts/user?userId=' + userId,
+            'https://ecology-app-test.vercel.app/follow/recommendations?userId=' + userId
+        ];
+
+        let results = '';
+
+        for (const endpoint of endpoints) {
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                results += `🔗 ${endpoint}\n` +
+                    `📊 Статус: ${response.status}\n` +
+                    `📦 Тип данных: ${Array.isArray(data) ? 'Массив' : 'Объект'}\n` +
+                    `📏 Размер: ${Array.isArray(data) ? data.length : JSON.stringify(data).length} символов\n\n`;
+            } catch (error) {
+                results += `🔗 ${endpoint}\n` +
+                    `❌ Ошибка: ${error.message}\n\n`;
+            }
+        }
+
+        await ctx.reply(`📊 Результаты теста API:\n\n${results}`);
+
+    } catch (error) {
+        console.error('❌ Ошибка в тесте API:', error);
+        await ctx.reply('❌ Ошибка при тестировании API');
+    }
+});
+
+// Функция для показа рейтинга
+async function handleShowRating(ctx, userId, userName) {
+    try {
+        const userResponse = await fetch(`https://ecology-app-test.vercel.app/user?id=${userId}`);
+        const user = await userResponse.json();
+
+        const rating = user?.rating || 0;
+
+        let ratingMessage = `⭐ Твой рейтинг: ${rating}\n\n`;
+
+        // Добавляем информацию о системе рейтинга
+        ratingMessage += `🎯 Как увеличить рейтинг:\n`;
+        ratingMessage += `• Субботники: +10 баллов\n`;
+        ratingMessage += `• Сбор отходов: +3 балла\n`;
+        ratingMessage += `• Другие события: +1 балл\n\n`;
+        ratingMessage += `📅 Рейтинг обновляется каждый месяц!\n\n`;
+        ratingMessage += `Участвуй в событиях и повышай свой рейтинг! 🌟`;
+
+        const backKeyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.callback('⬅️ Назад к профилю', 'profile', { intent: 'default' })
+            ]
+        ]);
+
+        await ctx.reply(ratingMessage, {
+            attachments: [backKeyboard]
+        });
+    } catch (error) {
+        console.error('❌ Ошибка при получении рейтинга:', error);
+        await ctx.reply('❌ Ошибка при загрузке рейтинга');
+    }
+}
+
+// Функция для показа подписок
+async function handleShowFollowing(ctx, userId, userName) {
+    try {
+        const followingResponse = await fetch(`https://ecology-app-test.vercel.app/follow/following?userId=${userId}`);
+        const following = await followingResponse.json();
+
+        let followingMessage = `📋 Твои подписки:\n\n`;
+
+        if (following && following.length > 0) {
+            following.forEach((user, index) => {
+                followingMessage += `${index + 1}. ${user.username} ⭐${user.rating || 0}\n`;
+            });
+            followingMessage += `\nВсего: ${following.length} подписок`;
+        } else {
+            followingMessage += `Ты пока ни на кого не подписан.\n\n`;
+            followingMessage += `Найди интересных людей через события и подпишись на них!`;
+        }
+
+        const backKeyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.callback('⬅️ Назад к профилю', 'profile', { intent: 'default' })
+            ]
+        ]);
+
+        await ctx.reply(followingMessage, {
+            attachments: [backKeyboard]
+        });
+    } catch (error) {
+        console.error('❌ Ошибка при получении подписок:', error);
+        await ctx.reply('❌ Ошибка при загрузке подписок');
+    }
+}
+
+// Функция для показа подписчиков
+async function handleShowFollowers(ctx, userId, userName) {
+    try {
+        const followersResponse = await fetch(`https://ecology-app-test.vercel.app/follow/followers?userId=${userId}`);
+        const followers = await followersResponse.json();
+
+        let followersMessage = `👥 Твои подписчики:\n\n`;
+
+        if (followers && followers.length > 0) {
+            followers.forEach((user, index) => {
+                followersMessage += `${index + 1}. ${user.username} ⭐${user.rating || 0}\n`;
+            });
+            followersMessage += `\nВсего: ${followers.length} подписчиков`;
+        } else {
+            followersMessage += `У тебя пока нет подписчиков.\n\n`;
+            followersMessage += `Будь активным в сообществе, и у тебя появятся подписчики!`;
+        }
+
+        const backKeyboard = Keyboard.inlineKeyboard([
+            [
+                Keyboard.button.callback('⬅️ Назад к профилю', 'profile', { intent: 'default' })
+            ]
+        ]);
+
+        await ctx.reply(followersMessage, {
+            attachments: [backKeyboard]
+        });
+    } catch (error) {
+        console.error('❌ Ошибка при получении подписчиков:', error);
+        await ctx.reply('❌ Ошибка при загрузке подписчиков');
+    }
+}
+
+// Функция для подписки на пользователя
+async function handleFollowUser(ctx, followerId, followingId, userName) {
+    try {
+        const response = await fetch('https://ecology-app-test.vercel.app/follow/follow', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                followerId: followerId,
+                followingId: followingId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка API');
+        }
+
+        const result = await response.json();
+
+        await ctx.reply(
+            `✅ Вы успешно подписались на пользователя!`,
+            {
+                attachments: [Keyboard.inlineKeyboard([
+                    [Keyboard.button.callback('📖 Посмотреть посты', `view_user_posts_${followingId}`, { intent: 'default' })],
+                    [Keyboard.button.callback('⬅️ Назад к профилю', `user_profile_${followingId}`, { intent: 'default' })]
+                ])]
+            }
+        );
+
+    } catch (error) {
+        console.error('❌ Ошибка при подписке:', error);
+        await ctx.reply('❌ Ошибка при подписке на пользователя');
+    }
+}
+
+// Функция для отписки от пользователя
+async function handleUnfollowUser(ctx, followerId, followingId, userName) {
+    try {
+        const response = await fetch('https://ecology-app-test.vercel.app/follow/unfollow', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                followerId: followerId,
+                followingId: followingId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка API');
+        }
+
+        await ctx.reply(
+            `❌ Вы отписались от пользователя.`,
+            {
+                attachments: [Keyboard.inlineKeyboard([
+                    [Keyboard.button.callback('⬅️ Назад к профилю', `user_profile_${followingId}`, { intent: 'default' })]
+                ])]
+            }
+        );
+
+    } catch (error) {
+        console.error('❌ Ошибка при отписке:', error);
+        await ctx.reply('❌ Ошибка при отписке от пользователя');
+    }
+}
+
+// Функция для возврата в главное меню
+async function handleBackToMain(ctx, userName) {
+    const mainKeyboard = Keyboard.inlineKeyboard([
+        [
+            Keyboard.button.link('✨ Приложение', 'https://max.ru/t211_hakaton_bot?startapp')
+        ],
+        [
+            Keyboard.button.callback('👤 Профиль', 'profile', { intent: 'default' })
+        ]
+    ]);
+
+    await ctx.reply(
+        `Привет, ${userName}! 👋\n\n` +
+        `Ты пришел в главное меню, можешь перейти в наше ✨прекрасное✨ приложение или в свой профиль) \n\n` +
+        `Выбери действие:`,
+        {
+            attachments: [mainKeyboard]
+        }
+    );
+}
+
+
+
 // Команда /help
 bot.command('help', (ctx) => {
     const keyboard = Keyboard.inlineKeyboard([
         [
-            Keyboard.button.link('🌐 Тык сюда', 'https://ecology-app.vercel.app')
+            Keyboard.button.link('🌐 Тык сюда', 'https://max.ru/t211_hakaton_bot?startapp')
         ]
     ]);
 
     ctx.reply(
         `📋 Доступные команды:\n\n` +
-        `/start - Начать работу с ботом и подписаться на уведомления\n` +
-        `/unsubscribe - Отписаться от уведомлений\n` +
+        `/start - Начать работу с ботом\n` +
         `/events - Посмотреть все предстоящие события\n` +
+        `/profile - Посмотреть свой профиль и рейтинг\n` +
         `/monitor_status - Показать статус мониторинга новых событий\n` +
-        `/check_new - Принудительно проверить новые события\n` +
-        `/test_api - Проверить работу API\n` +
+        `/check_new - Проверить новые события\n` +
         `/reset_events - Сбросить кэш событий (если что-то сломалось)\n` +
         `/help - Показать эту справку\n\n` +
-        `🔔 После /start вы будете автоматически получать уведомления о новых событиях!\n\n` +
         `🌱 Бот проверяет новые события каждую минуту автоматически!`,
         {
             attachments: [keyboard]
@@ -521,24 +827,93 @@ bot.command('help', (ctx) => {
 });
 
 // Команда для просмотра событий
+// bot.command('events', async (ctx) => {
+//     try {
+//         console.log('🔄 Запрос событий от пользователя');
+//
+//         const loadingMessage = await ctx.reply('🔄 Загружаю актуальные события...');
+//
+//         const events = await getEventsFromAPI();
+//
+//         const keyboard = Keyboard.inlineKeyboard([
+//             [
+//                 Keyboard.button.link('📅 Запланировать своё событие', 'https://max.ru/t211_hakaton_bot?startapp')
+//             ]
+//         ]);
+//
+//         if (events.length === 0) {
+//             await ctx.reply(
+//                 'Пока что запланированных событий нет :9(\n\n' +
+//                 'Но ты можешь стать первым!',
+//                 {
+//                     attachments: [keyboard]
+//                 }
+//             );
+//             return;
+//         }
+//
+//         let message = `📅 Актуальные события (${events.length}):\n\n`;
+//
+//         events.forEach((event, index) => {
+//             const eventType = EVENT_TYPES[event.type] || event.type;
+//             const eventDate = formatDate(event.date);
+//
+//             message += `${index + 1}. ${event.name}\n` +
+//                 `📝 ${event.description}\n` +
+//                 `🏷️ ${eventType}\n` +
+//                 `📅 ${eventDate}\n` +
+//                 `📍 ${event.address}\n` +
+//                 `👤 Организатор: ${event.author}\n`;
+//
+//             if (index < events.length - 1) {
+//                 message += '\n' + '─'.repeat(15) + '\n\n';
+//             }
+//         });
+//
+//         message += `\n🎯 Хочешь организовать своё событие?`;
+//
+//         await ctx.reply(message, {
+//             attachments: [keyboard]
+//         });
+//
+//     } catch (error) {
+//         console.error('❌ Ошибка при получении событий:', error);
+//
+//         const keyboard = Keyboard.inlineKeyboard([
+//             [
+//                 Keyboard.button.link('Тык на кнопочку', 'https://max.ru/t211_hakaton_bot?startapp')
+//             ]
+//         ]);
+//
+//         await ctx.reply(
+//             '❌ Не удалось загрузить события.\n\n' +
+//             '🍫 У нас технические шоколадки, попробуй немного позже 🍫\n\n'+
+//             '✨ А пока что можешь перейти в наше мини-приложении, оно более удобное и там точно все работает!',
+//             {
+//                 attachments: [keyboard]
+//             }
+//         );
+//     }
+// });
+
+// Команда для просмотра событий (упрощенная версия)
+// Команда для просмотра событий (упрощенная версия)
 bot.command('events', async (ctx) => {
     try {
-        console.log('🔄 Запрос событий от пользователя');
-
-        const loadingMessage = await ctx.reply('🔄 Загружаю актуальные события...');
+        console.log('🔄 Запрос актуальных событий от пользователя');
 
         const events = await getEventsFromAPI();
 
         const keyboard = Keyboard.inlineKeyboard([
             [
-                Keyboard.button.link('📅 Запланировать своё событие', 'https://ecology-app.vercel.app')
+                Keyboard.button.link('📅 Запланировать своё событие', 'https://max.ru/t211_hakaton_bot?startapp')
             ]
         ]);
 
         if (events.length === 0) {
             await ctx.reply(
-                'Пока что запланированных событий нет :9(\n\n' +
-                'Но ты можешь стать первым!',
+                'На данный момент актуальных событий нет 😔\n\n' +
+                'Но ты можешь стать первым и создать свое мероприятие!',
                 {
                     attachments: [keyboard]
                 }
@@ -546,22 +921,21 @@ bot.command('events', async (ctx) => {
             return;
         }
 
-        let message = `📅 Актуальные события (${events.length}):\n\n`;
+        // Ограничиваем количество событий для показа
+        const eventsToShow = events.slice(0, 10);
 
-        events.forEach((event, index) => {
+        let message = `📅 Ближайшие события (показано ${eventsToShow.length} из ${events.length}):\n\n`;
+
+        eventsToShow.forEach((event, index) => {
             const eventType = EVENT_TYPES[event.type] || event.type;
             const eventDate = formatDate(event.date);
 
             message += `${index + 1}. ${event.name}\n` +
-                `📝 ${event.description}\n` +
+                `📝 ${event.description.substring(0, 100)}${event.description.length > 100 ? '...' : ''}\n` +
                 `🏷️ ${eventType}\n` +
                 `📅 ${eventDate}\n` +
                 `📍 ${event.address}\n` +
-                `👤 Организатор: ${event.author}\n`;
-
-            if (index < events.length - 1) {
-                message += '\n' + '─'.repeat(15) + '\n\n';
-            }
+                `👤 ${event.author}\n\n`;
         });
 
         message += `\n🎯 Хочешь организовать своё событие?`;
@@ -575,19 +949,21 @@ bot.command('events', async (ctx) => {
 
         const keyboard = Keyboard.inlineKeyboard([
             [
-                Keyboard.button.link('Тык на кнопочку', 'https://ecology-app.vercel.app')
+                Keyboard.button.link('Тык на кнопочку', 'https://max.ru/t211_hakaton_bot?startapp')
             ]
         ]);
 
         await ctx.reply(
             '❌ Не удалось загрузить события.\n\n' +
-            'У нас технические шоколадки, попробуй немного позже',
+            '🍫 У нас технические шоколадки, попробуй немного позже 🍫\n\n'+
+            '✨ А пока что можешь перейти в наше мини-приложении, оно более удобное и там точно все работает!',
             {
                 attachments: [keyboard]
             }
         );
     }
 });
+
 
 // Обработчик текстовых сообщений
 bot.on('message_created', (ctx) => {
@@ -600,20 +976,49 @@ bot.on('message_created', (ctx) => {
 
     const keyboard = Keyboard.inlineKeyboard([
         [
-            Keyboard.button.link('📅 Запланировать событие', 'https://ecology-app.vercel.app')
+            Keyboard.button.link('📅 Запланировать событие', 'https://max.ru/t211_hakaton_bot?startapp')
+        ],
+        [
+            Keyboard.button.callback('👤 Профиль', 'profile', { intent: 'default' })
         ]
     ]);
 
     ctx.reply(
         `Привет, ${userName}! 👋\n\n` +
         `Хочешь посмотреть актуальные события?\n\n` +
-        `Тык на команду /events чтобы увидеть все мероприятия!\n\n` +
-        `Или можешь тыкнуть ну кнопочку ниже, чтобы запланировать свое событие!`,
+        `Тык на команду /events чтобы увидеть все мероприятия!\n` +
+        `Или используй /profile чтобы посмотреть свой профиль и рейтинг!\n\n` +
+        `Или можешь тыкнуть на кнопочку ниже!`,
         {
             attachments: [keyboard]
         }
     );
 });
+
+// Тестовая команда для проверки callback структуры
+// bot.command('test_profile', async (ctx) => {
+//     const chatId = ctx.update.message?.recipient?.chat_id;
+//     const userName = ctx.update.message?.from?.first_name || 'Пользователь';
+//
+//     // Создаем тестовую клавиатуру профиля
+//     const testKeyboard = Keyboard.inlineKeyboard([
+//         [
+//             Keyboard.button.callback('⭐ Тест рейтинг', 'show_rating', { intent: 'default' }),
+//             Keyboard.button.callback('📋 Тест подписки', 'show_following', { intent: 'default' })
+//         ],
+//         [
+//             Keyboard.button.callback('👥 Тест подписчики', 'show_followers', { intent: 'default' })
+//         ]
+//     ]);
+//
+//     await ctx.reply(
+//         `Тест профиля для ${userName} (ID: ${chatId})\n\n` +
+//         `Нажмите на кнопки для теста:`,
+//         {
+//             attachments: [testKeyboard]
+//         }
+//     );
+// });
 
 // Обработчик ошибок
 bot.on('error', (error) => {
@@ -632,10 +1037,8 @@ bot.start().then(() => {
     console.log('💬 Доступные команды:');
     console.log('   • /start - начать работу и подписаться');
     console.log('   • /events - посмотреть события');
-    console.log('   • /unsubscribe - отписаться от уведомлений');
     console.log('   • /monitor_status - статус мониторинга');
     console.log('   • /check_new - принудительная проверка');
-    console.log('   • /test_api - тест API');
     console.log('   • /reset_events - сброс кэша');
     console.log('   • /help - помощь');
 
@@ -659,3 +1062,22 @@ function formatDate(dateString) {
         return dateString;
     }
 }
+
+
+
+// Кнопка узнать свой рейтинг
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

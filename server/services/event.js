@@ -1,25 +1,24 @@
 import prisma from "../lib/prisma.js";
 import { shouldResetRating } from '../utils/periodUtils.js';
 
-export async function getEvents(filters = {}) {
-    console.log('Фильтры (service):', filters);
-    const where = {};
-
-    if (Array.isArray(filters.types) && filters.types.length > 0) {
-        where.type = { in: filters.types };
-    }
-
-    if (filters.city) {
-        where.address = { contains: filters.city, mode: 'insensitive' };
-    }
-
-    return await prisma.event.findMany({
-        where,
-        orderBy: { date: 'asc' }
-        // Убираем include, если отношение не настроено
-    });
-}
-
+// export async function getEvents(filters = {}) {
+//     console.log('Фильтры (service):', filters);
+//     const where = {};
+//
+//     if (Array.isArray(filters.types) && filters.types.length > 0) {
+//         where.type = { in: filters.types };
+//     }
+//
+//     if (filters.city) {
+//         where.address = { contains: filters.city, mode: 'insensitive' };
+//     }
+//
+//     return await prisma.event.findMany({
+//         where,
+//         orderBy: { date: 'asc' }
+//         // Убираем include, если отношение не настроено
+//     });
+// }
 
 export async function getMyEvents(userId) {
     const user = await prisma.user.findUnique({
@@ -35,6 +34,55 @@ export async function getMyEvents(userId) {
 
     return user.events;
 };
+
+// Функция для обновления актуальности событий
+export async function updateEventsActualStatus() {
+    const now = new Date();
+
+    // Находим события, которые уже прошли и помечаем их как неактуальные
+    const pastEvents = await prisma.event.updateMany({
+        where: {
+            date: {
+                lt: now
+            },
+            actual: true
+        },
+        data: {
+            actual: false
+        }
+    });
+
+    console.log(`🔄 Обновлено ${pastEvents.count} событий как неактуальные`);
+    return pastEvents.count;
+}
+
+// Функция для получения только актуальных событий
+export async function getActualEvents(filters = {}) {
+    console.log('Фильтры (service):', filters);
+    const where = {
+        actual: true
+    };
+
+    if (Array.isArray(filters.types) && filters.types.length > 0) {
+        where.type = { in: filters.types };
+    }
+
+    if (filters.city) {
+        where.address = { contains: filters.city, mode: 'insensitive' };
+    }
+
+    await updateEventsActualStatus();
+
+    return await prisma.event.findMany({
+        where,
+        orderBy: { date: 'asc' }
+    });
+}
+
+// Оставляем старую функцию getEvents для обратной совместимости
+export async function getEvents(filters = {}) {
+    return await getActualEvents(filters);
+}
 
 export async function postEvents(name, description, type, date, address, author) {
     // Валидация типа события

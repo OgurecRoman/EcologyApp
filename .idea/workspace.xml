@@ -4,7 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="prikinte ya sdelala instagramm a chevo vi dobilis" />
+    <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="prikinte ya sdelala instagramm a chevo vi dobilis">
+      <change afterPath="$PROJECT_DIR$/server/utils/cron.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/bot.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/bot.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/controllers/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/event.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/routes/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/event.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/event.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -48,29 +64,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JavaScript Debug.join.executor": "Debug",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Node.js.bot.js.executor": "Run",
-    "Node.js.event.js.executor": "Run",
-    "Node.js.notification-server.js.executor": "Run",
-    "Node.js.prisma-setup.js.executor": "Run",
-    "Node.js.server.js.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "notification",
-    "last_opened_file_path": "/Users/chebooreka/WebstormProjects/max/EcologyApp/app",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "/Applications/WebStorm.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.join.executor&quot;: &quot;Debug&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Node.js.bot.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.event.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.notification-server.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.prisma-setup.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.server.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;notification&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/chebooreka/WebstormProjects/max/EcologyApp/app&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Applications/WebStorm.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/app" />
@@ -80,7 +96,7 @@
       <recent name="$PROJECT_DIR$/prisma" />
     </key>
   </component>
-  <component name="RunManager" selected="Node.js.server.js">
+  <component name="RunManager" selected="Node.js.bot.js">
     <configuration name="migration.sql" type="DatabaseScript" editBeforeRun="true">
       <script-file value="$PROJECT_DIR$/server/prisma/migrations/20251109094459_init/migration.sql" />
       <script-mode>FILE</script-mode>
@@ -103,9 +119,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Node.js.bot.js" />
         <item itemvalue="Node.js.server.js" />
         <item itemvalue="JavaScript Debug.join" />
-        <item itemvalue="Node.js.bot.js" />
         <item itemvalue="Node.js.notification-server.js" />
         <item itemvalue="Node.js.event.js" />
       </list>
