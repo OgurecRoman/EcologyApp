@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import fs from 'fs';
+import { startEventsActualizationCron } from './utils/cron.js'; // Добавляем импорт
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -28,28 +29,12 @@ async function startServer(){
 
         app.use('/', router);
 
-        // app.get('/', (req, res) => {
-        //     try {
-        //         const htmlFilePath = path.join(__dirname, 'templates', 'index.html');
-        //         console.log(htmlFilePath);
-        //         fs.readFile(htmlFilePath, 'utf8', (err, data) => {
-        //         if (err) {
-        //             console.error('Ошибка при чтении файла:', err);
-        //             return res.status(500).send('Ошибка сервера при загрузке HTML');
-        //         }
-
-        //         res.send(data);
-        //         });
-        //     } catch (error) {
-        //         res.send('Ошибка!!!');
-        //         console.log(error);
-        //     }
-        // });
-
         app.listen(PORT, () => {
             console.log(`🚀 Сервер запущен на порту ${PORT}`);
             console.log(`➡️ Откройте http://localhost:${PORT} в браузере`);
 
+            // Запускаем cron-задачу для обновления актуальности событий
+            startEventsActualizationCron();
         });
     }catch (error) {
         console.error('Failed to initialize server:', error);

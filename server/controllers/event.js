@@ -7,8 +7,9 @@ export async function getEvents(req, res) {
         const typesArray = types ? types.split(',').filter(Boolean) : [];
         console.log('Фильтры (controller):', { city, types: typesArray });
 
-        const events = await eventsService.getEvents({ city, types: typesArray });
-        console.log(events);
+        // Используем функцию для получения актуальных событий
+        const events = await eventsService.getActualEvents({ city, types: typesArray });
+        console.log(`Найдено ${events.length} актуальных событий`);
         res.json(events);
     } catch (error) {
         console.error('Ошибка в getEvents:', error);
