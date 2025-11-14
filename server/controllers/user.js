@@ -3,13 +3,23 @@ import * as userService from '../services/user.js';
 // /user?id=&name=
 export async function getUser(req, res) {
     try {
-        const id = parseInt(req.query.id);
-        const name = req.query.name;
+        const id = req.query.id ? parseInt(req.query.id) : null;
+        const name = req.query.name || null;
+
+        console.log(`🔄 Запрос пользователя: id=${id}, name=${name}`);
+
+        if (!id && !name) {
+            return res.status(400).json({
+                error: 'Необходимо указать id или name пользователя',
+                example: '/user?id=1 или /user?name=Username'
+            });
+        }
+
         const user = await userService.getUser(id, name);
-        console.log("User: ", user);
+        console.log("✅ Пользователь найден:", user ? user.username : 'не найден');
         res.json(user);
     } catch (error) {
-        console.error(error);
+        console.error('❌ Ошибка в getUser:', error);
         res.status(500).json({ error: 'Ошибка при получении пользователя' });
     }
 };
@@ -24,4 +34,19 @@ export async function patchUser(req, res) {
         console.error(error);
         res.status(500).json({ error: 'Ошибка при обновлении пользователя' });
     }
-};
+}
+
+export async function getTopUsers(req, res) {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        console.log(`🔄 Запрос топа пользователей, лимит: ${limit}`);
+
+        const topUsers = await userService.getTopUsers(limit);
+        console.log(`✅ Найдено ${topUsers.length} пользователей для топа`);
+
+        res.json(topUsers);
+    } catch (error) {
+        console.error('❌ Ошибка в getTopUsers:', error);
+        res.status(500).json({ error: 'Ошибка при получении топа пользователей' });
+    }
+}

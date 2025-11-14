@@ -2,28 +2,48 @@ import prisma from "../lib/prisma.js";
 import { updateUserActivity, shouldResetRating } from '../utils/periodUtils.js';
 
 export async function getUser(id, name) {
-    let user = await prisma.user.findUnique({
-        where: { id: id },
-        include: { events: true }
-    });
+    try {
+        console.log(`🔍 Поиск пользователя: id=${id}, name=${name}`);
 
-    if (!user){
-        user = await postUser(id, name);
-    } else {
-        // Проверяем, не нужно ли сбросить рейтинг
-        if (shouldResetRating(user.lastActivity)) {
-            user = await prisma.user.update({
+        let user;
+
+        if (id) {
+            user = await prisma.user.findUnique({
                 where: { id: id },
-                data: {
-                    rating: 0,
-                    lastActivity: new Date()
-                },
-                include: { events: true }
+                include: {
+                    events: true,
+                    followers: true,
+                    following: true
+                }
             });
         }
-    }
 
-    return user;
+        if (!user && name) {
+            user = await prisma.user.findFirst({
+                where: {
+                    username: {
+                        contains: name,
+                        mode: 'insensitive'
+                    }
+                },
+                include: {
+                    events: true,
+                    followers: true,
+                    following: true
+                }
+            });
+        }
+
+        if (!user && id) {
+            console.log(`🆕 Пользователь с id=${id} не найден, создаем нового`);
+            user = await postUser(id, name);
+        }
+
+        return user;
+    } catch (error) {
+        console.error('❌ Ошибка в getUser service:', error);
+        throw error;
+    }
 };
 
 export async function postUser(id, name) {
@@ -69,3 +89,28 @@ export async function patchUser(userId, eventsToConnect) {
         throw new Error('Не удалось обновить список событий пользователя.');
     }
 };
+
+export async function getTopUsers(limit = 10) {
+    try {
+        console.log(`🔍 Поиск топ ${limit} пользователей по рейтингу`);
+
+        const topUsers = await prisma.user.findMany({
+            take: limit,
+            orderBy: {
+                rating: 'desc'
+            },
+            select: {
+                id: true,
+                username: true,
+                rating: true,
+                createdAt: true
+            }
+        });
+
+        console.log(`📊 Найдено ${topUsers.length} пользователей`);
+        return topUsers;
+    } catch (error) {
+        console.error('❌ Ошибка в getTopUsers service:', error);
+        throw error;
+    }
+}

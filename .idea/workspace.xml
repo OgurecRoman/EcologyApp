@@ -6,6 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="prikinte ya sdelala instagramm a chevo vi dobilis">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/bot.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/bot.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/controllers/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/routes/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/event.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/utils/periodUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/utils/periodUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
