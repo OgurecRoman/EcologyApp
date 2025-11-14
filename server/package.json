@@ -4,9 +4,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "postinstall": "npx prisma generate && npx prisma migrate deploy",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "db:deploy": "npx prisma migrate dev --name init && npx prisma deploy",
+    "db:deploy": "npx prisma generate && npx prisma migrate dev --name init && npx prisma deploy",
     "start": "node server.js"
   },
   "keywords": [],
