@@ -153,17 +153,17 @@ export async function joinEvent(userId, eventId) {
         console.log(`Event type: ${event.type}, Rating points: ${ratingPoints}`);
 
         // Проверяем, не нужно ли сбросить рейтинг из-за смены периода
-        let newRating = user.rating;
+        let newRating;
         const currentTime = new Date();
 
         if (shouldResetRating(user.lastActivity)) {
-            // Сбрасываем рейтинг и начинаем новый период
+            // Сбрасываем рейтинг и начинаем новый период с баллов за текущее событие
             newRating = ratingPoints;
-            console.log(`Rating reset to ${newRating} (new period started)`);
+            console.log(`🔄 Рейтинг сброшен до ${newRating} (начался новый месяц)`);
         } else {
             // Увеличиваем рейтинг в текущем периоде на баллы за событие
             newRating = user.rating + ratingPoints;
-            console.log(`Rating increased from ${user.rating} to ${newRating}`);
+            console.log(`📈 Рейтинг увеличен с ${user.rating} до ${newRating}`);
         }
 
         // Обновляем пользователя, добавляя событие и обновляя рейтинг
