@@ -5,25 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e2cb48be-fab2-49b8-bd09-bbb144be7396" name="Changes" comment="Прикиньте я сделала систему с рейтингом, и она даже работает. А че у вас коммиты на английском, мы же русские :(">
-      <change afterPath="$PROJECT_DIR$/server/controllers/blog.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/controllers/follow.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/controllers/post.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/routes/blog.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/routes/follow.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/routes/post.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/blog.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/follow.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/post.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/ProfileTab.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/edge.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index-browser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/node_modules/.prisma/client/wasm.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/MapTab.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/MapTab.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/controllers/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/user.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/routes/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/user.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,7 +72,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "notification",
+    "git-widget-placeholder": "nemaster",
     "last_opened_file_path": "/Users/chebooreka/WebstormProjects/max/EcologyApp/app",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",

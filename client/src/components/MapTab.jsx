@@ -169,7 +169,7 @@ const MapTab = () => {
 
         <div mode="primary" id="map" ref={mapRef} style={{ width: '100%', marginBottom: '20px' }} />
           <Panel id="window">
-            <Panel class="filter-group" style={{width: '100%'}}>
+            <Panel className="filter-group" style={{width: '100%'}}>
               <Button style={{width: '100%'}} onClick={() => setIsOpen(!isOpen)} className="filters-toggle">
                 <span><Typography.Action>Фильтры</Typography.Action></span>
                 {selectedFilters.length > 0 && <span>{selectedFilters.length}</span>}
