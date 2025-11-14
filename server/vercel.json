@@ -2,22 +2,33 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js", 
+      "src": "server.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["prisma/migrations/**", "api/**"] 
+        "includeFiles": ["prisma/migrations/", "prisma/", "lib/", "api/"]
+      }
+    },
+    {
+      "src": "api/cron-job.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["prisma/migrations/", "prisma/", "lib/**"]
       }
     }
   ],
   "crons": [
     {
-      "path": "/api/cron-job", 
-      "schedule": "40 14 * * *" 
+      "path": "/api/cron-job",
+      "schedule": "40 14 * * "
     }
   ],
   "routes": [
     {
-      "src": "/.*",
+      "src": "/api/cron-job",
+      "dest": "/api/cron-job.js"
+    },
+    {
+      "src": "/.",
       "dest": "server.js"
     }
   ]
