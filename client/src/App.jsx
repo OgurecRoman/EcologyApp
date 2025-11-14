@@ -1,33 +1,59 @@
 import { useState } from 'react';
+import { ToolButton, Flex } from '@maxhub/max-ui';
 import MapTab from './components/MapTab';
-import AddEventTab from './components/AddEventTab';
-import Tabs from './components/Tabs';
+import EventTab from './components/AddEventTab';
+import ProfileTab from './components/AddEventTab';
+import mapIcon from './data/map.png';
+import eventIcon from './data/events.png';
+import profileIcon from './data/profile.png';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('map-tab');
+  const [activeTab, setActiveTab] = useState('tab1');
 
-  console.log('Текущая вкладка:', activeTab); 
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+  };
 
-  return (
-    <div className="app">
-      <h1>🗺️ Карта событий</h1>
+  const renderCurrentTab = () => {
+    switch (activeTab) {
+      case 'tab1':
+        return <MapTab />;
+      case 'tab2':
+        return <EventTab />;
+      case 'tab3':
+        return <ProfileTab />;
+      default:
+        return null;
+    }
+  };
 
-      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+  return <Flex direction="column" gap={16}>
+      {renderCurrentTab()}
 
-      <div className="tab-content">
-        {activeTab === 'map-tab' && (
-          <>
-            <MapTab />
-          </>
-        )}
-        {activeTab === 'add-tab' && (
-          <>
-            <AddEventTab setActiveTab={setActiveTab} />
-          </>
-        )}
-      </div>
-    </div>
-  );
+      <Flex direction="row" gap={8} style={{width: '100%'}}>
+        <ToolButton
+          icon={ <img src={mapIcon} style={{ width: '40px', height: '40px' }} alt='' /> }
+          onClick={() => handleTabClick('tab1')}
+          selected={activeTab === 'tab1'}
+        >
+          Карта
+        </ToolButton>
+        <ToolButton
+          icon={ <img src={eventIcon} style={{ width: '40px', height: '40px' }} alt='' /> }
+          onClick={() => handleTabClick('tab2')}
+          selected={activeTab === 'tab2'}
+        >
+          События
+        </ToolButton>
+        <ToolButton
+          icon={ <img src={profileIcon} style={{ width: '40px', height: '40px' }} alt='' /> }
+          onClick={() => handleTabClick('tab3')}
+          selected={activeTab === 'tab3'}
+        >
+          Профиль
+        </ToolButton>
+      </Flex>
+    </Flex>
 }
 
 export default App;

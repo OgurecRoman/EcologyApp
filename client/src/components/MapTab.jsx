@@ -1,16 +1,21 @@
 // MapTab.jsx
+import { Button, Flex, Grid, Input, Panel, Switch, Typography } from '@maxhub/max-ui';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { EventType, EventTypeLabels } from '../types/event'
 
 const MapTab = () => {
   const [events, setEvents] = useState([]);
   const [filterCity, setFilterCity] = useState('');
-  const [filterTypes, setFilterTypes] = useState([]);
   const [userCity, setUserCity] = useState('Москва');
   const [ymaps, setYmaps] = useState(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedFilters, setSelectedFilters] = useState([])
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
 
-  console.log(events);
+  const BASE_URL = process.env.REACT_APP_URL || 'https://ecology-app-test.vercel.app'
+
+  // console.log(events);
 
   // Загрузка Yandex Maps API
   useEffect(() => {
@@ -24,13 +29,12 @@ const MapTab = () => {
         });
       };
       document.head.appendChild(script);
+      
     } else {
       setYmaps(window.ymaps);
     }
   }, []);
 
-  // Оберните loadEventMarkers в useCallback
-  // Укажите все зависимости, которые использует функция
   const loadEventMarkers = useCallback(async (city = '', types = []) => {
     // Проверка на наличие ymaps и mapInstance.current важна
     if (!ymaps || !mapInstance.current) {
@@ -39,12 +43,13 @@ const MapTab = () => {
     }
 
     try {
+      console.log("ТИПЫ");
+      console.log(types);
       const params = new URLSearchParams();
       if (city) params.append('city', city);
       if (types.length > 0) params.append('types', types.join(','));
 
-      // Убедитесь, что REACT_APP_URL в .env.local содержит ваш API URL
-      const url = `${process.env.REACT_APP_URL}/events${params.toString() ? '?' + params.toString() : ''}`;
+      const url = `${BASE_URL}/events${params.toString() ? '?' + params.toString() : ''}`;
       console.log('Загрузка событий из:', url);
 
       const response = await fetch(url);
@@ -80,6 +85,7 @@ const MapTab = () => {
             const placemark = new ymaps.Placemark(coords, {
               balloonContentHeader: event.name,
               balloonContentBody: `
+                <strong>Тип события:</strong> ${EventTypeLabels[event.type]}<br>
                 <strong>Дата:</strong> ${new Date(event.date).toLocaleString('ru-RU')}<br>
                 <strong>Адрес:</strong> ${event.address}<br>
                 <strong>Автор:</strong> ${event.author}<br>
@@ -129,15 +135,19 @@ const MapTab = () => {
     }
   }, [ymaps, loadEventMarkers]); // <--- ✅ Добавлен loadEventMarkers
 
-  const handleApplyFilters = () => {
-    // Вызываем загрузку с фильтрами
-    loadEventMarkers(filterCity, filterTypes);
-  };
+  const handleFilterToggle = (type) => {
+    const newFilters = selectedFilters.includes(type)
+      ? selectedFilters.filter((f) => f !== type)
+      : [...selectedFilters, type]
+
+    setSelectedFilters(newFilters)
+    loadEventMarkers(filterCity, newFilters)
+  }
 
   const handleClearFilters = () => {
     // Сбрасываем фильтры
     setFilterCity(userCity);
-    setFilterTypes([]);
+    setSelectedFilters([]);
     // Загружаем события для текущего города
     loadEventMarkers(userCity, []);
   };
@@ -145,58 +155,79 @@ const MapTab = () => {
   const handleTypeChange = (e) => {
     const value = e.target.value;
     if (e.target.checked) {
-      setFilterTypes(prev => [...prev, value]);
+      setSelectedFilters(prev => [...prev, value]);
     } else {
-      setFilterTypes(prev => prev.filter(t => t !== value));
+      setSelectedFilters(prev => prev.filter(t => t !== value));
     }
   };
 
   return (
+  <Flex direction="column">
+    <Typography.Display style={{textAlign: 'center', width: '100%', marginBottom: '10px' }} >Карта событий</Typography.Display>
     <div>
       {!ymaps ? (
         <div>Загрузка карты...</div>
       ) : (
         <>
-          <div id="map" ref={mapRef} style={{ width: '100%', height: '500px', marginBottom: '20px' }}></div>
-
-          <div id="filters">
-            <h2>Фильтры</h2>
-
-            <div className="filter-group">
-              <label htmlFor="filterCity">Город:</label>
-              <input
+        <div className="filter-group">
+              <Input
                 type="text"
                 id="filterCity"
                 value={filterCity}
                 onChange={(e) => setFilterCity(e.target.value)}
-                placeholder="Например: Москва, Санкт-Петербург"
+                placeholder="Ведите город: Москва, Санкт-Петербург"
               />
             </div>
-
+        <Panel mode="primary">
+            <div id="map" ref={mapRef} style={{ width: '100%', height: '500px', marginBottom: '20px' }}></div>
+        </Panel>
+          <div id="filters">
+            
             <div className="filter-group">
-              <label>Тип события (можно выбрать несколько):</label>
-              <div className="checkbox-list" id="typeCheckboxes">
-                {['SUBBOTNIK', 'PAPER_COLLECTION', 'BATTERY_COLLECTION', 'PLASTIC_COLLECTION', 'GLASS_COLLECTION', 'ELECTRONICS_COLLECTION', 'OTHER'].map(type => (
-                  <label key={type}>
-                    <input
-                      type="checkbox"
-                      value={type}
-                      checked={filterTypes.includes(type)}
-                      onChange={handleTypeChange}
-                    /> {type.replace('_', ' ')}
-                  </label>
-                ))}
-              </div>
+              <Button onClick={() => setIsOpen(!isOpen)} className="filters-toggle">
+                <span><Typography.Action>Фильтры</Typography.Action></span>
+                {selectedFilters.length > 0 && <span>{selectedFilters.length}</span>}
+                <span className={`arrow ${isOpen ? "open" : ""}`}>▼</span>
+              </Button>
+
+              {isOpen && (
+                <div className="filters-dropdown">
+
+                  <div className="filters-list">
+                    <Grid
+                      cols={2}
+                      gapX={20}
+                      gapY={10}
+                      style={{
+                        width: '100%'
+                      }}
+                    >
+                    {Object.values(EventType).map((type) => (
+                      
+                      <label key={type}>
+                        <Switch
+                          type="checkbox"
+                          checked={selectedFilters.includes(type)}
+                          onChange={() => handleFilterToggle(type)}
+                        />
+                        <Typography.Body>{EventTypeLabels[type]}</Typography.Body>
+                      </label>
+                    ))}
+                    </Grid>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="filter-buttons">
-              <button onClick={handleApplyFilters}>Применить фильтры</button>
-              <button onClick={handleClearFilters}>Сбросить</button>
+              <Button onClick={handleClearFilters}>Сбросить</Button>
             </div>
           </div>
+          
         </>
       )}
     </div>
+  </Flex>
   );
 };
 
