@@ -32,7 +32,7 @@
 - **JavaScript**
 - **Prisma ORM**
 - **HTML / CSS / JavaScript (client)**
-- **Vercel **
+- **Vercel**
 
 ---
 
