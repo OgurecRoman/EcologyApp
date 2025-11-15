@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { ToolButton, Flex } from '@maxhub/max-ui';
 import MapTab from './components/MapTab';
-import AddEventTab from './components/AddEventTab';
-import ProfileTab from './components/ProfileTab'; // Исправленный импорт
+import ProfileTab from './components/ProfileTab';
 import mapIcon from './data/map.png';
 import eventIcon from './data/events.png';
 import profileIcon from './data/profile.png';
+import EventsTab from './components/EventsTab';
 
 function App() {
     const [activeTab, setActiveTab] = useState('tab1');
@@ -19,16 +19,15 @@ function App() {
             case 'tab1':
                 return <MapTab id="window" />;
             case 'tab2':
-                return <AddEventTab setActiveTab={setActiveTab} />;
+                return <EventsTab />;
             case 'tab3':
                 return <ProfileTab />;
             default:
                 return null;
         }
     };
-// ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    return (
-        <Flex direction="column" gap={16} style={{width: '100%', height: '100vh',
+   return (
+        <Flex direction="column" gap={16} style={{width: '100%',
             overflow: 'hidden'}}>
             {renderCurrentTab()}
 
