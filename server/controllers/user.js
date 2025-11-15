@@ -48,7 +48,6 @@ export async function patchUser(req, res) {
         console.error(error);
         res.status(500).json({ error: 'Ошибка при обновлении пользователя' });
     }
-<<<<<<< HEAD
 }
 
 export async function getTopUsers(req, res) {
@@ -65,20 +64,3 @@ export async function getTopUsers(req, res) {
         res.status(500).json({ error: 'Ошибка при получении топа пользователей' });
     }
 }
-=======
-};
-
-export async function getUserStats(req, res) {
-    try {
-        const userId = parseInt(req.query.userId);
-        if (!userId) {
-            return res.status(400).json({ error: 'User ID обязателен' });
-        }
-        const stats = await userService.getUserStats(userId);
-        res.json(stats);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Ошибка при получении статистики пользователя' });
-    }
-};
->>>>>>> b5858486fdeb55e420cbc188bc05e3eb5c2d8b58
