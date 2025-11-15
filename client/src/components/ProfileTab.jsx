@@ -1,4 +1,3 @@
-// ProfileTab.jsx
 import React, { useState, useEffect } from 'react';
 
 const ProfileTab = () => {
@@ -17,64 +16,17 @@ const ProfileTab = () => {
 
     const BASE_URL = process.env.REACT_APP_URL || 'https://ecology-app-test.vercel.app';
 
-    useEffect(() => {
-        loadUserData();
-    }, []);
-
-    const loadUserData = async () => {
-        try {
-            let userId;
-
-            // Пытаемся получить реального пользователя из Max
-            if (window.max && window.max.user) {
-                try {
-                    const maxUser = await window.max.user.get();
-                    userId = maxUser.id;
-                    console.log('Реальный пользователь Max:', maxUser);
-                } catch (error) {
-                    console.warn('Не удалось получить пользователя из Max:', error);
-                    userId = 1; // fallback
-                }
-            } else {
-                console.log('Max Bridge недоступен, используем тестовый ID');
-                userId = 1; // fallback
-            }
-
-            // Получаем данные пользователя с бэкенда
-            const userResponse = await fetch(`${BASE_URL}/user?id=${userId}`);
-
-            if (userResponse.ok) {
-                const user = await userResponse.json();
-                setUserData({
-                    username: user.username,
-                    rating: user.rating,
-                    lastActivity: user.lastActivity
-                });
-
-                await loadUserStats(userId);
-            } else {
-                // Если пользователь не найден на бэкенде, создаем его
-                await createUser(userId);
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки данных пользователя:', error);
-            // Используем тестовые данные при ошибке
-            setUserData({
-                username: 'Пользователь',
-                rating: 0,
-                lastActivity: new Date().toISOString()
-            });
-        } finally {
-            setLoading(false);
-        }
-
+    // Оборачиваем loadUserData в useCallback
+    const loadUserData = React.useCallback(async () => {
+        // Объявляем createUser внутри loadUserData, до её вызова
         const createUser = async (userId) => {
             try {
-                // Получаем имя пользователя из Max или используем дефолтное
+                // Получаем имя пользователя из WebApp или используем дефолтное
                 let username = 'Пользователь Max';
-                if (window.max && window.max.user) {
-                    const maxUser = await window.max.user.get();
-                    username = maxUser.name || maxUser.username || username;
+                if (window.WebApp && window.WebApp.initDataUnsafe && window.WebApp.initDataUnsafe.user) {
+                     const maxUser = window.WebApp.initDataUnsafe.user;
+                     // Используем first_name, username или last_name из initDataUnsafe
+                     username = maxUser.first_name || maxUser.username || maxUser.last_name || 'Пользователь';
                 }
 
                 const response = await fetch(`${BASE_URL}/user`, {
@@ -96,16 +48,65 @@ const ProfileTab = () => {
                         lastActivity: newUser.lastActivity
                     });
                     await loadUserStats(userId);
+                } else {
+                    console.error('Ответ сервера при создании пользователя не OK:', response.status);
                 }
             } catch (error) {
                 console.error('Ошибка создания пользователя:', error);
             }
         };
-    };
+
+        try {
+            let userId;
+
+            // Пытаемся получить реального пользователя из WebApp
+            if (window.WebApp && window.WebApp.initDataUnsafe) {
+                try {
+                    const data = window.WebApp.initDataUnsafe;
+                    const maxUser = data.user;
+                    userId = maxUser.id;
+                    console.log('Реальный пользователь WebApp:', maxUser);
+                } catch (error) {
+                    console.warn('Не удалось получить пользователя из WebApp:', error);
+                    userId = 1; // fallback
+                }
+            } else {
+                console.log('WebApp недоступен, используем тестовый ID');
+                userId = 1; // fallback
+            }
+
+            // Получаем данные пользователя с бэкенда
+            const userResponse = await fetch(`${BASE_URL}/user?id=${userId}`);
+
+            if (userResponse.ok) {
+                const user = await userResponse.json();
+                setUserData({
+                    username: user.username,
+                    rating: user.rating,
+                    lastActivity: user.lastActivity
+                });
+
+                await loadUserStats(userId);
+            } else {
+                // Если пользователь не найден на бэкенде, вызываем createUser
+                await createUser(userId);
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки данных пользователя:', error);
+            // Используем тестовые данные при ошибке
+            setUserData({
+                username: 'Пользователь',
+                rating: 0,
+                lastActivity: new Date().toISOString()
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [BASE_URL]); // BASE_URL как зависимость для loadUserData
 
     const loadUserStats = async (userId) => {
         try {
-            // Здесь можно добавить запросы для получения статистики
+            // Здесь можно добавить реальные запросы для получения статистики
             // Пока используем тестовые данные
             setStats({
                 eventsCount: 5,
@@ -117,6 +118,11 @@ const ProfileTab = () => {
             console.error('Ошибка загрузки статистики:', error);
         }
     };
+
+    // Теперь useEffect зависит от loadUserData
+    useEffect(() => {
+        loadUserData();
+    }, [loadUserData]); // loadUserData теперь в зависимостях
 
     if (loading) {
         return (
@@ -146,8 +152,8 @@ const ProfileTab = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                     <span>Рейтинг:</span>
                     <span style={{ color: '#fbe3ae', fontWeight: 'bold', fontSize: '20px' }}>
-            {userData.rating} ★
-          </span>
+                        {userData.rating} ★
+                    </span>
                 </div>
 
                 {userData.lastActivity && (
@@ -174,7 +180,7 @@ const ProfileTab = () => {
 
                 <div style={{ background: '#527a52', padding: '15px', borderRadius: '8px' }}>
                     <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '5px' }}>
-                        {stats.postsCount}
+                        {stats.rank}
                     </div>
                     <div style={{ fontSize: '14px', color: '#f5f5f5' }}>Рейтинг в топе</div>
                 </div>

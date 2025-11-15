@@ -4,18 +4,24 @@ import AddEventTab from './AddEventTab';
 import { Button } from '@maxhub/max-ui';
 
 const EventsTab = () => {
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState([]); // Все события, полученные с сервера
+    const [displayedEvents, setDisplayedEvents] = useState([]); // События для отображения
     const [activeTab, setActiveTab] = useState('all');
     const [showAddForm, setShowAddForm] = useState(false);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
     const [showForm, setShowForm] = useState(false);
+    const [loadedCount, setLoadedCount] = useState(0); // Сколько событий уже показано
 
     const BASE_URL = process.env.REACT_APP_URL || 'https://ecology-app-test.vercel.app';
+    const EVENTS_PER_PAGE = 5; // Количество событий на "порцию"
 
-    const userId = 79097811;
-    const name = 'Роман';
+    const data = window.WebApp.initDataUnsafe;
+    // const userId = 79097811;
+    // const name = 'Рома';
+    const userId = data?.user?.id || null;
+    const name = data?.user?.first_name || null;
 
     console.log(error);
 
@@ -34,7 +40,9 @@ const EventsTab = () => {
             }
         };
 
-        getUser();
+        if (userId && name) {
+            getUser();
+        }
     }, [BASE_URL, userId, name]);
 
     // Оборачиваем fetchData в useCallback
@@ -47,23 +55,32 @@ const EventsTab = () => {
                 throw new Error(`Ошибка: ${response.status}`);
             }
             const data = await response.json();
-            if (activeTab === 'all') {
-                setEvents(data);
-            } else {
-                setEvents(data.events || []);
-            }
+            const fetchedEvents = (activeTab === 'all') ? data : (data.events || []);
+            setEvents(fetchedEvents); // Сохраняем все события
+            setLoadedCount(0); // Сбрасываем счетчик при смене вкладки
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
-    }, [activeTab]); // Добавляем activeTab, так как она используется внутри
+    }, [activeTab, BASE_URL]);
 
     // Теперь добавляем fetchData в зависимости
     useEffect(() => {
         const url = (activeTab === 'all') ? `${BASE_URL}/events` : `${BASE_URL}/user?id=${userId}&name=${name}`;
         fetchData(url);
-    }, [activeTab, BASE_URL, fetchData]); // fetchData добавлен в зависимости
+    }, [activeTab, BASE_URL, fetchData]);
+
+    // Эффект для обновления отображаемых событий при изменении общего списка или loadedCount
+    useEffect(() => {
+        const end = loadedCount + EVENTS_PER_PAGE;
+        const newEventsToShow = events.slice(0, end);
+        setDisplayedEvents(newEventsToShow);
+    }, [events, loadedCount]);
+
+    const handleLoadMore = () => {
+        setLoadedCount(prev => prev + EVENTS_PER_PAGE);
+    };
 
     const handleBack = () => {
         setShowAddForm(false);
@@ -79,6 +96,8 @@ const EventsTab = () => {
             </div>
         );
     }
+
+    const hasMoreEvents = displayedEvents.length < events.length;
 
     return (
         <div className="events-view">
@@ -114,19 +133,27 @@ const EventsTab = () => {
                             <div className="spinner"></div>
                             <p>Загрузка...</p>
                         </div>
-                    ) : events.length === 0 ? (
+                    ) : displayedEvents.length === 0 ? (
                         <div className="events-empty">
                             <p>Событий пока нет</p>
                         </div>
                     ) : (
-                        <div className="events-list">
-                            {events.map((event) => (
-                                <EventCard
-                                    key={event.id}
-                                    event={event}
-                                    user={user}
-                                />
-                            ))}
+                        <div>
+                            <div className="events-list">
+                                {displayedEvents.map((event) => (
+                                    <EventCard
+                                        key={event.id}
+                                        event={event}
+                                    />
+                                ))}
+                            </div>
+                            {hasMoreEvents && (
+                                <div className="load-more-container" style={{ textAlign: 'center', margin: '20px 0' }}>
+                                    <Button onClick={handleLoadMore}>
+                                        Показать еще
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@maxhub/max-ui"
+import { Button, Input } from "@maxhub/max-ui"
 import { EventType, EventTypeLabels } from "../types/event"
 
 const API = process.env.REACT_APP_URL || 'https://ecology-app-test.vercel.app';
@@ -72,7 +72,7 @@ export default function AddEventTab({ onClose, userId }) {
         <form onSubmit={handleSubmit} className="event-form">
           <div className="event-form-field">
             <label>Название *</label>
-            <input
+            <Input compact='true'
               type="text"
               name="name"
               value={formData.name}
@@ -84,7 +84,7 @@ export default function AddEventTab({ onClose, userId }) {
 
           <div className="event-form-field">
             <label>Описание</label>
-            <textarea
+            <Input compact='true'
               name="description"
               value={formData.description}
               onChange={handleChange}
@@ -113,7 +113,7 @@ export default function AddEventTab({ onClose, userId }) {
 
           <div className="event-form-field">
             <label>Адрес *</label>
-            <input
+            <Input compact='true'
               type="text"
               name="address"
               value={formData.address}
@@ -125,7 +125,7 @@ export default function AddEventTab({ onClose, userId }) {
 
           <div className="event-form-field">
             <label>Автор *</label>
-            <input type="text" name="author" value={formData.author} onChange={handleChange} placeholder="Ваше имя" />
+            <Input compact='true' type="text" name="author" value={formData.author} onChange={handleChange} placeholder="Ваше имя" />
             {errors.author && <span className="event-form-error">{errors.author}</span>}
           </div>
 

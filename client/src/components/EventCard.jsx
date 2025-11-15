@@ -1,14 +1,43 @@
 import { Button } from '@maxhub/max-ui';
 import { EventTypeLabels } from "../types/event"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const API = process.env.REACT_APP_URL || 'https://ecology-app-test.vercel.app';
 
-export default function EventCard({ event, user }) {
-    // Добавим проверку, чтобы избежать ошибки, если event или event.participants undefined
+export default function EventCard({ event }) {
+    const [user, setUser] = useState(null);
+    const [error, setError] = useState(null);
+
     const [joined, setJoined] = useState(
-        user && event?.participants && event.participants.includes(user)
+        user && user.events.includes(event)
     );
+
+    const data = window.WebApp.initDataUnsafe;
+    const userId = data.user.id || null;
+    const name = data.user.first_name || null;
+
+    // const userId = 79097811;
+    // const name = 'Рома';
+
+    useEffect(() => {
+        const getUser = async () => {
+            try {
+                const response = await fetch(`${API}/user?id=${userId}&name=${name}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки пользователя: ${response.status}`);
+                }
+                const userData = await response.json();
+                setUser(userData);
+            } catch (err) {
+                console.error(err);
+                setError(err.message);
+            }
+        };
+
+        getUser();
+    }, [API, userId, name]);
+
+
     const [loading, setLoading] = useState(false)
 
     const handleJoin = async () => {
@@ -63,9 +92,6 @@ export default function EventCard({ event, user }) {
       </div>
 
       <div className="event-card-actions">
-        {/* <Button onClick={handleShowOnMap} className="event-card-btn-secondary">
-          Показать на карте
-        </Button> */}
 
         {joined ? (
           <div className="event-card-joined">Вы записаны!</div>
